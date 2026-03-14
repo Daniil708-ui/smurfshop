@@ -442,106 +442,146 @@
             window.open(`https://t.me/smurfshop6?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // ============================================
-        // 3. КОРЗИНА (ИСПРАВЛЕННАЯ)
-        // ============================================
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+      // ============================================
+// 3. КОРЗИНА (ИСПРАВЛЕННАЯ)
+// ============================================
+var cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-        // ✅ Сохранение в localStorage
-        function saveCart() {
-            localStorage.setItem('cart', JSON.stringify(cart));
-        }
+// ✅ Сохранение в localStorage
+function saveCart() {
+    localStorage.setItem('cart', JSON.stringify(cart));
+}
 
-        function updateCart() {
-            const cartItems = document.getElementById('cart-items');
-            const cartTotal = document.getElementById('cart-total-price');
-            const cartCounter = document.getElementById('cart-counter');
-            
-            if (cart.length === 0) {
-                cartItems.innerHTML = '<p class="cart-empty">Корзина пуста</p>';
-                cartTotal.textContent = '0 ₽';
-                if (cartCounter) cartCounter.textContent = '0';
-                return;
-            }
-            
-            let total = 0;
-            cartItems.innerHTML = '';
-            
-            cart.forEach((item, index) => {
-                total += item.price * item.quantity;
-                cartItems.innerHTML += `
-                    <div class="cart-item">
-                        <div class="cart-item-info">
-                            <div class="cart-item-name">${item.name}</div>
-                            <div class="cart-item-price">${item.price} ₽</div>
-                        </div>
-                        <div class="cart-item-quantity">
-                            <button onclick="changeQuantity(${index}, -1)">-</button>
-                            <span>${item.quantity}</span>
-                            <button onclick="changeQuantity(${index}, 1)">+</button>
-                        </div>
-                        <div class="cart-item-actions">
-                            <button class="cart-item-order" onclick="orderSingleItem(${index})">📦 Заказать</button>
-                            <button class="cart-item-remove" onclick="removeFromCart(${index})">🗑️ Удалить</button>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            cartTotal.textContent = total + ' ₽';
-            if (cartCounter) cartCounter.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
-            
-            saveCart(); // ✅ Сохраняем после каждого обновления
-        }
+function updateCart() {
+    var cartItems = document.getElementById('cart-items');
+    var cartTotal = document.getElementById('cart-total-price');
+    var cartCounter = document.getElementById('cart-counter');
+    
+    if (cart.length === 0) {
+        cartItems.innerHTML = '<p class="cart-empty">Корзина пуста</p>';
+        cartTotal.textContent = '0 ₽';
+        if (cartCounter) cartCounter.textContent = '0';
+        return;
+    }
+    
+    var total = 0;
+    cartItems.innerHTML = '';
+    
+    cart.forEach(function(item, index) {
+        total += item.price * item.quantity;
+        cartItems.innerHTML += `
+            <div class="cart-item">
+                <div class="cart-item-info">
+                    <div class="cart-item-name">${item.name}</div>
+                    <div class="cart-item-price">${item.price} ₽</div>
+                </div>
+                <div class="cart-item-quantity">
+                    <button onclick="changeQuantity(${index}, -1)">-</button>
+                    <span>${item.quantity}</span>
+                    <button onclick="changeQuantity(${index}, 1)">+</button>
+                </div>
+                <div class="cart-item-actions">
+                    <button class="cart-item-order" onclick="orderSingleItem(${index})">📦 Заказать</button>
+                    <button class="cart-item-remove" onclick="removeFromCart(${index})">🗑️ Удалить</button>
+                </div>
+            </div>
+        `;
+    });
+    
+    cartTotal.textContent = total + ' ₽';
+    if (cartCounter) cartCounter.textContent = cart.reduce(function(sum, item) { return sum + item.quantity; }, 0);
+    
+    saveCart();
+}
 
-        function addToCart(id) {
-            const product = allProducts.find(p => p.id === id);
-            if (!product) return;
-            
-            const existingItem = cart.find(item => item.id === id);
-            if (existingItem) {
-                existingItem.quantity++;
-            } else {
-                cart.push({
-                    id: product.id,
-                    name: product.model,
-                    price: product.price,
-                    quantity: 1
-                });
-            }
-            
-            saveCart(); // ✅ Сохраняем сразу
-            updateCart();
-            
-            const btn = event.target;
-            btn.textContent = '✓ В корзине';
-            btn.classList.add('added-to-cart');
-            setTimeout(() => {
-                btn.textContent = '🛒 В корзину';
-                btn.classList.remove('added-to-cart');
-            }, 2000);
-        }
+function addToCart(id) {
+    var product = allProducts.find(function(p) { return p.id === id; });
+    if (!product) return;
+    
+    var existingItem = cart.find(function(item) { return item.id === id; });
+    if (existingItem) {
+        existingItem.quantity++;
+    } else {
+        cart.push({
+            id: product.id,
+            name: product.model,
+            price: product.price,
+            quantity: 1
+        });
+    }
+    
+    saveCart();
+    updateCart();
+    
+    var btn = event.target;
+    btn.textContent = '✓ В корзине';
+    btn.classList.add('added-to-cart');
+    setTimeout(function() {
+        btn.textContent = '🛒 В корзину';
+        btn.classList.remove('added-to-cart');
+    }, 2000);
+}
 
-        function changeQuantity(index, change) {
-            cart[index].quantity += change;
-            if (cart[index].quantity <= 0) {
-                cart.splice(index, 1);
-            }
-            saveCart(); // ✅ Сохраняем
-            updateCart();
-        }
+function changeQuantity(index, change) {
+    cart[index].quantity += change;
+    if (cart[index].quantity <= 0) {
+        cart.splice(index, 1);
+    }
+    saveCart();
+    updateCart();
+}
 
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            saveCart(); // ✅ Сохраняем сразу после удаления
-            updateCart();
-        }
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    saveCart();
+    updateCart();
+}
 
-        function clearCart() {
-            cart = [];
-            saveCart(); // ✅ Очищаем localStorage
-            updateCart();
-        }
+function clearCart() {
+    cart = [];
+    saveCart();
+    updateCart();
+}
+
+// 🆕 ЗАКАЗ ОТДЕЛЬНОГО ТОВАРА (без телефона и TG)
+function orderSingleItem(index) {
+    var item = cart[index];
+    if (!item) return;
+    
+    var total = item.price * item.quantity;
+    var message = '🛒 Заказ товара!\n\n' +
+        '• ' + item.name + ' — ' + item.quantity + ' шт. × ' + item.price + ' ₽\n\n' +
+        '💰 Итого: ' + total + ' ₽';
+    
+    var url = 'https://t.me/smurfshop6?text=' + encodeURIComponent(message);
+    window.open(url, '_blank');
+}
+
+// 🆕 ЗАКАЗ ВСЕЙ КОРЗИНЫ (без телефона и TG)
+function orderCart() {
+    if (cart.length === 0) {
+        alert('Корзина пуста!');
+        return;
+    }
+    
+    var total = cart.reduce(function(sum, item) { return sum + (item.price * item.quantity); }, 0);
+    var message = '🛒 Новый заказ!\n\n';
+    
+    cart.forEach(function(item) {
+        message += '• ' + item.name + ' — ' + item.quantity + ' шт. × ' + item.price + ' ₽\n';
+    });
+    
+    message += '\n💰 Итого: ' + total + ' ₽';
+    
+    var url = 'https://t.me/smurfshop6?text=' + encodeURIComponent(message);
+    window.open(url, '_blank');
+}
+
+// 🆕 ЗАКАЗ ИЗ МОДАЛКИ (без телефона и TG)
+function order(name) {
+    var msg = 'Здравствуйте! Интересует товар: ' + name;
+    window.open('https://t.me/smurfshop6?text=' + encodeURIComponent(msg), '_blank');
+}
 
         // 🆕 ЗАКАЗ ОТДЕЛЬНОГО ТОВАРА
         function orderSingleItem(index) {
