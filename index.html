@@ -111,6 +111,18 @@
             .hero h1 { font-size: 2rem; }
             .storm-button { width: 100%; max-width: 300px; }
         }
+        /* Убираем фиксированную шапку на телефонах */
+@media (max-width: 768px) {
+    .header,
+    .шапка,
+    header,
+    .fixed-header,
+    .sticky-header {
+        position: relative !important;
+        top: 0 !important;
+        z-index: auto !important;
+    }
+}
     </style>
 </head>
 <body>
