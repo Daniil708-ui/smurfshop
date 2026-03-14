@@ -136,8 +136,25 @@
         .footer-section h4 { color: #00d4ff; margin-bottom: 20px; }
         .footer-section p { margin-bottom: 10px; color: #b0c4de; line-height: 1.6; }
         .footer-section a { color: #00d4ff; text-decoration: none; }
-        .warning-18 { background: rgba(255,0,0,0.1); border: 2px solid rgba(255,0,0,0.4); padding: 20px; border-radius: 15px; }
-        .warning-18 h4 { color: #ff5252; }
+        .warning-18 { 
+    background: rgba(255,0,0,0.1); 
+    border: 2px solid rgba(255,0,0,0.4); 
+    padding: 15px 20px; 
+    border-radius: 10px; 
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+.warning-18 h4 { 
+    color: #ff5252; 
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.warning-18 p { 
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
         .footer-bottom { text-align: center; padding-top: 30px; border-top: 1px solid rgba(0,212,255,0.3); color: #b0c4de; }
 
         @media (max-width: 768px) {
@@ -274,86 +291,90 @@
 </footer>
     <script>
         // ============================================
-        // 1. АНИМАЦИЯ МОЛНИЙ
-        // ============================================
-        function strikeLightning() {
-            const left = document.getElementById('lightning-left-img');
-            const right = document.getElementById('lightning-right-img');
-            const overlay = document.getElementById('flash-overlay');
-            if (Math.random() > 0.3) left.classList.add('active');
-            if (Math.random() > 0.3) right.classList.add('active');
-            overlay.classList.add('active');
-            setTimeout(() => {
-                left.classList.remove('active');
-                right.classList.remove('active');
-                overlay.classList.remove('active');
-            }, 800);
-        }
-        function scheduleLightning() {
-            setTimeout(() => {
-                strikeLightning();
-                if (Math.random() > 0.7) setTimeout(strikeLightning, 500);
-                scheduleLightning();
-            }, 12000 + Math.random() * 8000);
-        }
+// 1. АНИМАЦИЯ МОЛНИЙ
+// ============================================
+function strikeLightning() {
+    var left = document.getElementById('lightning-left-img');
+    var right = document.getElementById('lightning-right-img');
+    var overlay = document.getElementById('flash-overlay');
+    if (Math.random() > 0.3) left.classList.add('active');
+    if (Math.random() > 0.3) right.classList.add('active');
+    overlay.classList.add('active');
+    setTimeout(function() {
+        left.classList.remove('active');
+        right.classList.remove('active');
+        overlay.classList.remove('active');
+    }, 800);
+}
 
-        // ============================================
-        // 2. ЗАГРУЗКА ИЗ GOOGLE ТАБЛИЦЫ
-        // ============================================
-        
-        var allProducts = [];
-        
-        var SHEET_ID = '1vDqnqGe5OvOiOsjcLUEsmjpGe3QYyEQvHuSC-kxC584';
-        
-        var SHEET_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&sheet=Products';
-        function loadProducts() {
-            console.log('🔄 Загрузка товаров из Google Таблицы...');
+function scheduleLightning() {
+    setTimeout(function() {
+        strikeLightning();
+        if (Math.random() > 0.7) setTimeout(strikeLightning, 500);
+        scheduleLightning();
+    }, 12000 + Math.random() * 8000);
+}
+
+     // ============================================
+// 2. ЗАГРУЗКА ИЗ GOOGLE ТАБЛИЦЫ
+// ============================================
+
+var allProducts = [];
+
+var SHEET_ID = '1vDqnqGe5OvOiOsjcLUEsmjpGe3QYyEQvHuSC-kxC584';
+
+var SHEET_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&sheet=Products';
+
+function loadProducts() {
+    console.log('🔄 Загрузка товаров из Google Таблицы...');
+    
+    fetch(SHEET_URL)
+        .then(function(response) {
+            if (!response.ok) throw new Error('Ошибка сети: ' + response.status);
+            return response.text();
+        })
+        .then(function(text) {
+            var json = JSON.parse(text.substring(47).slice(0, -2));
             
-            fetch(SHEET_URL)
-                .then(response => {
-                    if (!response.ok) throw new Error('Ошибка сети: ' + response.status);
-                    return response.text();
-                })
-                .then(text => {
-                    const json = JSON.parse(text.substring(47).slice(0, -2));
-                    
-                    allProducts = json.table.rows.map(row => ({
-                        id: row.c[0]?.v || '',
-                        category: row.c[1]?.v || '',
-                        model: row.c[2]?.v || '',
-                        price: row.c[3]?.v || 0,
-                        image: row.c[4]?.v || 'https://placehold.co/400x400/0a0e17/00d4ff?text=Нет+фото',
-                        description: row.c[5]?.v || '',
-                        nicotine: row.c[6]?.v || '-',
-                        puffs: row.c[7]?.v || '-',
-                        rechargeable: row.c[8]?.v || '-',
-                        mah: row.c[9]?.v || '-',
-                        flavors: parseFlavors(row.c[10]?.v || '')
-                    }));
-
-                    console.log('✅ Загружено товаров:', allProducts.length);
-                    
-                    renderCategory('hqd', allProducts.filter(p => p.category.toLowerCase().includes('hqd')));
-                    renderCategory('pods', allProducts.filter(p => p.category.toLowerCase().includes('pod')));
-                    renderCategory('liquids', allProducts.filter(p => p.category.toLowerCase().includes('жидк') || p.category.toLowerCase().includes('liquid')));
-                    renderCategory('accessories', allProducts.filter(p => p.category.toLowerCase().includes('акс') || p.category.toLowerCase().includes('acc')));
-                })
-                .catch(error => {
-                    console.error('❌ Ошибка загрузки:', error);
-                    document.querySelector('.section-title').innerHTML += '<br><span style="font-size:1rem;color:#f87171;">Ошибка загрузки товаров. Проверьте ID таблицы и доступ.</span>';
-                });
-        }
-
-        function parseFlavors(str) {
-            if (!str || str === '-') return [];
-            return str.split(';').map(item => {
-                const parts = item.split(':');
+            allProducts = json.table.rows.map(function(row) {
                 return {
-                    name: parts[0]?.trim() || 'Unknown',
-                    available: parts[1]?.trim() === '✅'
+                    id: row.c[0]?.v || '',
+                    category: row.c[1]?.v || '',
+                    model: row.c[2]?.v || '',
+                    price: row.c[3]?.v || 0,
+                    image: row.c[4]?.v || 'https://placehold.co/400x400/0a0e17/00d4ff?text=Нет+фото',
+                    description: row.c[5]?.v || '',
+                    nicotine: row.c[6]?.v || '-',
+                    puffs: row.c[7]?.v || '-',
+                    rechargeable: row.c[8]?.v || '-',
+                    mah: row.c[9]?.v || '-',
+                    flavors: parseFlavors(row.c[10]?.v || '')
                 };
             });
-        }
+
+            console.log('✅ Загружено товаров:', allProducts.length);
+            
+            renderCategory('hqd', allProducts.filter(function(p) { return p.category.toLowerCase().includes('hqd'); }));
+            renderCategory('pods', allProducts.filter(function(p) { return p.category.toLowerCase().includes('pod'); }));
+            renderCategory('liquids', allProducts.filter(function(p) { return p.category.toLowerCase().includes('жидк') || p.category.toLowerCase().includes('liquid'); }));
+            renderCategory('accessories', allProducts.filter(function(p) { return p.category.toLowerCase().includes('акс') || p.category.toLowerCase().includes('acc'); }));
+        })
+        .catch(function(error) {
+            console.error('❌ Ошибка загрузки:', error);
+            document.querySelector('.section-title').innerHTML += '<br><span style="font-size:1rem;color:#f87171;">Ошибка загрузки товаров. Проверьте ID таблицы и доступ.</span>';
+        });
+}
+
+function parseFlavors(str) {
+    if (!str || str === '-') return [];
+    return str.split(';').map(function(item) {
+        var parts = item.split(':');
+        return {
+            name: parts[0]?.trim() || 'Unknown',
+            available: parts[1]?.trim() === '✅'
+        };
+    });
+}
 
         function renderCategory(catId, products) {
             const grid = document.getElementById(catId + '-grid');
