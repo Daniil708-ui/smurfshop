@@ -50,26 +50,12 @@
         .storm-button:hover { background: rgba(0, 100, 150, 0.6); transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0, 212, 255, 0.5); }
         .storm-button:hover::before { left: 100%; }
 
-        /* HERO */
+        /* КАТАЛОГ */
         .hero { padding: 100px 30px; text-align: center; background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.15) 0%, transparent 70%); position: relative; z-index: 1; }
         .hero h1 { font-size: 3rem; margin-bottom: 20px; color: #e0f0ff; text-shadow: 0 0 30px rgba(0, 212, 255, 0.8); }
         .hero p { font-size: 1.2rem; color: #b0c4de; margin-bottom: 40px; max-width: 800px; margin: 0 auto 40px; line-height: 1.6; }
         .button-group { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; }
         
-        /* НОВОЕ: БЛОК ПРЕИМУЩЕСТВ */
-        .about-section { padding: 80px 30px; background: rgba(0, 0, 0, 0.3); border-top: 2px solid rgba(0, 212, 255, 0.3); border-bottom: 2px solid rgba(0, 212, 255, 0.3); position: relative; z-index: 1; }
-        .about-container { max-width: 1000px; margin: 0 auto; }
-        .about-intro { text-align: center; font-size: 1.3rem; color: #e0f0ff; margin-bottom: 50px; line-height: 1.8; text-shadow: 0 0 15px rgba(0, 212, 255, 0.5); }
-        .about-intro span { color: #00d4ff; font-weight: 700; }
-        .about-title { text-align: center; font-size: 2.2rem; color: #00d4ff; margin-bottom: 40px; text-shadow: 0 0 20px rgba(0, 212, 255, 0.6); }
-        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
-        .feature-card { background: rgba(0, 212, 255, 0.08); border: 2px solid rgba(0, 212, 255, 0.3); border-radius: 20px; padding: 30px 25px; text-align: center; transition: 0.3s; }
-        .feature-card:hover { transform: translateY(-8px); border-color: #00d4ff; box-shadow: 0 15px 40px rgba(0, 212, 255, 0.3); background: rgba(0, 212, 255, 0.12); }
-        .feature-icon { font-size: 3rem; margin-bottom: 20px; }
-        .feature-title { font-size: 1.3rem; color: #00d4ff; margin-bottom: 12px; font-weight: 700; }
-        .feature-text { color: #b0c4de; font-size: 1rem; line-height: 1.6; }
-        
-        /* КАТАЛОГ */
         .catalog { padding: 80px 30px; position: relative; z-index: 1; }
         .container { max-width: 1400px; margin: 0 auto; }
         .section-title { text-align: center; font-size: 2.5rem; margin-bottom: 60px; color: #00d4ff; text-shadow: 0 0 20px rgba(0, 212, 255, 0.6); }
@@ -168,9 +154,6 @@
             .cart-order-btn, .cart-clear-btn { width: 100%; max-width: 300px; }
             .modal-buttons { flex-direction: column; }
             .order-btn, .modal-add-cart { width: 100%; }
-            .about-intro { font-size: 1.1rem; }
-            .about-title { font-size: 1.8rem; }
-            .features-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -209,43 +192,6 @@
         <div class="button-group">
             <a href="#catalog" class="storm-button">⚡ Смотреть каталог</a>
             <a href="https://t.me/smurfshop6" target="_blank" class="storm-button">📩 Написать в Telegram</a>
-        </div>
-    </section>
-
-    <!-- 🆕 НОВОЕ: БЛОК О МАГАЗИНЕ -->
-    <section class="about-section">
-        <div class="about-container">
-            <p class="about-intro">
-                У нас ты найдёшь <span>не просто товар</span>, а удобство, комфорт и уверенность в каждой покупке.
-            </p>
-            <h2 class="about-title">⚡ Почему выбирают SMURF SHOP? ⚡</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">🤝</div>
-                    <div class="feature-title">Индивидуальный подход</div>
-                    <div class="feature-text">К каждому клиенту — персональное внимание и забота</div>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">💬</div>
-                    <div class="feature-title">Всегда на связи</div>
-                    <div class="feature-text">Помогу выбрать то, что подойдёт именно тебе</div>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">✅</div>
-                    <div class="feature-title">Только качественные товары</div>
-                    <div class="feature-text">Проверенные бренды и оригинальная продукция</div>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">💰</div>
-                    <div class="feature-title">Лучшие цены</div>
-                    <div class="feature-text">Выгодные предложения и доступные цены</div>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🚀</div>
-                    <div class="feature-title">Быстрая доставка</div>
-                    <div class="feature-text">По городу и району в удобное время</div>
-                </div>
-            </div>
         </div>
     </section>
 
@@ -474,10 +420,11 @@
         }
 
         // ============================================
-        // 3. КОРЗИНА
+        // 3. КОРЗИНА (ИСПРАВЛЕННАЯ)
         // ============================================
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
+        // ✅ Сохранение в localStorage
         function saveCart() {
             localStorage.setItem('cart', JSON.stringify(cart));
         }
@@ -521,7 +468,7 @@
             cartTotal.textContent = total + ' ₽';
             if (cartCounter) cartCounter.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
             
-            saveCart();
+            saveCart(); // ✅ Сохраняем после каждого обновления
         }
 
         function addToCart(id) {
@@ -540,7 +487,7 @@
                 });
             }
             
-            saveCart();
+            saveCart(); // ✅ Сохраняем сразу
             updateCart();
             
             const btn = event.target;
@@ -557,22 +504,23 @@
             if (cart[index].quantity <= 0) {
                 cart.splice(index, 1);
             }
-            saveCart();
+            saveCart(); // ✅ Сохраняем
             updateCart();
         }
 
         function removeFromCart(index) {
             cart.splice(index, 1);
-            saveCart();
+            saveCart(); // ✅ Сохраняем сразу после удаления
             updateCart();
         }
 
         function clearCart() {
             cart = [];
-            saveCart();
+            saveCart(); // ✅ Очищаем localStorage
             updateCart();
         }
 
+        // 🆕 ЗАКАЗ ОТДЕЛЬНОГО ТОВАРА
         function orderSingleItem(index) {
             const item = cart[index];
             if (!item) return;
@@ -581,12 +529,12 @@
             const message = `🛒 Заказ товара!\n\n` +
                 `• ${item.name} — ${item.quantity} шт. × ${item.price} ₽\n\n` +
                 `💰 Итого: ${total} ₽\n\n` +
-               
-            
+                
             const url = `https://t.me/smurfshop6?text=${encodeURIComponent(message)}`;
             window.open(url, '_blank');
         }
 
+        // ЗАКАЗ ВСЕЙ КОРЗИНЫ
         function orderCart() {
             if (cart.length === 0) {
                 alert('Корзина пуста!');
@@ -602,11 +550,12 @@
             
             message += `\n💰 Итого: ${total} ₽`;
             
-        
+            
             const url = `https://t.me/smurfshop6?text=${encodeURIComponent(message)}`;
             window.open(url, '_blank');
         }
 
+        // Запуск
         window.addEventListener('load', () => {
             setTimeout(strikeLightning, 2000);
             scheduleLightning();
