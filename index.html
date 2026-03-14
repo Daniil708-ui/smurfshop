@@ -4,31 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smurf Shop - Вейп шоп</title>
+    
+    <!-- ПОДКЛЮЧЕНИЕ НАСТРОЕК ТЕМЫ -->
+    <script src="theme.js"></script>
+    
     <style>
         :root {
-            --primary: #008899;
-            --primary-dark: #006677;
-            --text-main: #cccccc;
-            --text-secondary: #778899;
-            --text-heading: #aaccdd;
-            --glow-light: rgba(0, 136, 153, 0.08);
-            --glow-medium: rgba(0, 136, 153, 0.15);
-            --glow-strong: rgba(0, 136, 153, 0.35);
-            --glow-max: rgba(0, 136, 153, 0.5);
-            --background: #05080c;
-            --background-light: rgba(8, 16, 24, 0.95);
-            --background-overlay: rgba(0, 0, 0, 0.7);
-            --lightning-opacity: 0.6;
-            --success: #3d994a;
-            --danger: #cc4444;
-            --warning: #cc9900;
+            --primary: #00d4ff;
+            --primary-dark: #00b8d9;
+            --text-main: #ffffff;
+            --text-secondary: #b0c4de;
+            --text-heading: #e0f0ff;
+            --glow-light: rgba(0, 212, 255, 0.15);
+            --glow-medium: rgba(0, 212, 255, 0.3);
+            --glow-strong: rgba(0, 212, 255, 0.6);
+            --glow-max: rgba(0, 212, 255, 0.8);
+            --background: #0a0e17;
+            --background-light: rgba(13, 27, 42, 0.9);
+            --background-overlay: rgba(0, 0, 0, 0.5);
+            --lightning-opacity: 1;
+            --lightning-duration: 0.8s;
+            --success: #4ade80;
+            --danger: #f87171;
+            --warning: #fbbf24;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
         body { font-family: 'Arial', sans-serif; background: var(--background); color: var(--text-main); overflow-x: hidden; min-height: 100vh; }
         
-        /* ФОН */
+        /* ФОН - МОЛНИИ НА ВЕСЬ ЭКРАН */
         .clouds-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -3; overflow: hidden; }
         .cloud-layer-1 { position: absolute; width: 110%; height: 110%; top: -5%; left: -5%; background: url('assets/images/background/clouds.png') no-repeat center center fixed; background-size: cover; animation: breathe 15s ease-in-out infinite; }
         .cloud-layer-2, .cloud-layer-3, .cloud-layer-4 { display: none; }
@@ -36,15 +41,15 @@
         .clouds-container::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at center, var(--glow-light) 0%, transparent 50%); pointer-events: none; animation: glowPulse 12s ease-in-out infinite; }
         @keyframes glowPulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.7; } }
 
-        /* МОЛНИИ */
+        /* МОЛНИИ НА ВЕСЬ ЭКРАН */
         .lightning-image-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
         .lightning-img { position: absolute; top: 0; width: 50%; height: 100%; opacity: 0; mix-blend-mode: screen; filter: drop-shadow(0 0 15px #fff) drop-shadow(0 0 30px var(--primary)); opacity: var(--lightning-opacity); }
         .lightning-img-left { left: 0; }
         .lightning-img-right { right: 0; transform: scaleX(-1); }
-        .lightning-img.active { animation: lightningStrikeImage 0.8s ease-out; }
+        .lightning-img.active { animation: lightningStrikeImage var(--lightning-duration) ease-out; }
         @keyframes lightningStrikeImage { 0%, 100% { opacity: 0; } 10%, 30% { opacity: var(--lightning-opacity); } 20%, 40% { opacity: calc(var(--lightning-opacity) * 0.3); } }
         .flash-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at center, var(--glow-medium) 0%, transparent 70%); opacity: 0; pointer-events: none; z-index: 1; }
-        .flash-overlay.active { animation: screenFlash 0.8s ease-out; }
+        .flash-overlay.active { animation: screenFlash var(--lightning-duration) ease-out; }
         @keyframes screenFlash { 0%, 100% { opacity: 0; } 20% { opacity: 1; } }
 
         /* ШАПКА */
@@ -102,27 +107,22 @@
         .cart-section { padding: 60px 20px; background: var(--background-overlay); border-top: 2px solid var(--primary); scroll-margin-top: 100px; }
         .cart-section h2 { text-align: center; color: var(--primary); margin-bottom: 30px; font-size: 2rem; }
         .cart-items { max-width: 800px; margin: 0 auto 30px; }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; background: var(--glow-light); border: 1px solid var(--primary); border-radius: 15px; padding: 15px 20px; margin-bottom: 15px; flex-wrap: wrap; gap: 15px; }
-        .cart-item-info { flex: 1; min-width: 200px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; background: var(--glow-light); border: 1px solid var(--primary); border-radius: 15px; padding: 15px 20px; margin-bottom: 15px; }
+        .cart-item-info { flex: 1; }
         .cart-item-name { font-size: 1.1rem; color: var(--text-main); margin-bottom: 5px; }
         .cart-item-price { color: var(--primary); font-weight: bold; }
-        .cart-item-quantity { display: flex; align-items: center; gap: 10px; margin: 0 15px; }
+        .cart-item-quantity { display: flex; align-items: center; gap: 10px; margin: 0 20px; }
         .cart-item-quantity button { background: var(--primary); border: none; color: #000; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-weight: bold; }
-        .cart-item-quantity span { color: var(--text-main); font-size: 1.1rem; min-width: 25px; text-align: center; }
-        .cart-item-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-        .cart-item-remove { background: var(--danger); border: none; color: #fff; padding: 8px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
-        .cart-item-remove:hover { background: #aa3333; }
-        .cart-item-order { background: var(--success); border: none; color: #fff; padding: 8px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: 600; }
-        .cart-item-order:hover { background: #2d7a3a; transform: scale(1.05); }
+        .cart-item-quantity span { color: var(--text-main); font-size: 1.1rem; }
+        .cart-item-remove { background: var(--danger); border: none; color: #fff; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
         .cart-empty { text-align: center; color: #888; font-size: 1.2rem; padding: 40px; }
         .cart-total { text-align: center; font-size: 1.5rem; color: var(--primary); margin-bottom: 20px; }
         .cart-total span:last-child { font-weight: bold; margin-left: 10px; }
-        .cart-buttons { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
-        .cart-order-btn, .cart-clear-btn { display: block; padding: 15px 30px; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; min-width: 200px; }
+        .cart-order-btn, .cart-clear-btn { display: block; width: 100%; max-width: 400px; margin: 10px auto; padding: 15px 30px; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .cart-order-btn { background: var(--primary); color: #000; }
         .cart-order-btn:hover { background: var(--primary-dark); transform: scale(1.05); }
         .cart-clear-btn { background: var(--danger); color: #fff; }
-        .cart-clear-btn:hover { background: #aa3333; }
+        .cart-clear-btn:hover { background: #cc0000; }
 
         /* МОДАЛКА */
         .modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); overflow-y: auto; }
@@ -166,12 +166,8 @@
             .hero h1 { font-size: 2rem; }
             .storm-button { width: 100%; max-width: 300px; }
             .header, .шапка, header, .fixed-header, .sticky-header { position: relative !important; top: 0 !important; z-index: auto !important; }
-            .cart-item { flex-direction: column; align-items: stretch; text-align: center; }
-            .cart-item-info { width: 100%; }
-            .cart-item-quantity { justify-content: center; margin: 15px 0; }
-            .cart-item-actions { justify-content: center; width: 100%; }
-            .cart-buttons { flex-direction: column; align-items: center; }
-            .cart-order-btn, .cart-clear-btn { width: 100%; max-width: 300px; }
+            .cart-item { flex-direction: column; gap: 15px; text-align: center; }
+            .cart-item-quantity { margin: 0; }
             .modal-buttons { flex-direction: column; }
             .order-btn, .modal-add-cart { width: 100%; }
             .lightning-img { width: 100%; }
@@ -239,10 +235,8 @@
                 <span>Итого:</span>
                 <span id="cart-total-price">0 ₽</span>
             </div>
-            <div class="cart-buttons">
-                <button class="cart-order-btn" onclick="orderCart()">📦 Заказать всё</button>
-                <button class="cart-clear-btn" onclick="clearCart()">🗑️ Очистить корзину</button>
-            </div>
+            <button class="cart-order-btn" onclick="orderCart()">📦 Заказать в Telegram</button>
+            <button class="cart-clear-btn" onclick="clearCart()">🗑️ Очистить корзину</button>
         </div>
     </section>
 
@@ -270,6 +264,7 @@
         <div class="footer-bottom"><p>&copy; 2024 Smurf Shop. Все права защищены. ⚡</p></div>
     </footer>
 
+    <script src="theme.js"></script>
     <script>
         // ============================================
         // 1. АНИМАЦИЯ МОЛНИЙ
@@ -473,10 +468,7 @@
                             <span>${item.quantity}</span>
                             <button onclick="changeQuantity(${index}, 1)">+</button>
                         </div>
-                        <div class="cart-item-actions">
-                            <button class="cart-item-order" onclick="orderSingleItem(${index})">📦 Заказать</button>
-                            <button class="cart-item-remove" onclick="removeFromCart(${index})">🗑️ Удалить</button>
-                        </div>
+                        <button class="cart-item-remove" onclick="removeFromCart(${index})">Удалить</button>
                     </div>
                 `;
             });
@@ -532,23 +524,6 @@
             updateCart();
         }
 
-        // 🆕 ЗАКАЗ ОТДЕЛЬНОГО ТОВАРА
-        function orderSingleItem(index) {
-            const item = cart[index];
-            if (!item) return;
-            
-            const total = item.price * item.quantity;
-            const message = `🛒 Заказ товара!\n\n` +
-                `• ${item.name} — ${item.quantity} шт. × ${item.price} ₽\n\n` +
-                `💰 Итого: ${total} ₽\n\n` +
-                `📞 Телефон: +7 (905) 401-15-75\n` +
-                `✈️ Telegram: @smurfshop6`;
-            
-            const url = `https://t.me/smurfshop6?text=${encodeURIComponent(message)}`;
-            window.open(url, '_blank');
-        }
-
-        // ЗАКАЗ ВСЕЙ КОРЗИНЫ
         function orderCart() {
             if (cart.length === 0) {
                 alert('Корзина пуста!');
@@ -566,7 +541,8 @@
             message += `\n\n📞 Телефон: +7 (905) 401-15-75`;
             message += `\n✈️ Telegram: @smurfshop6`;
             
-            const url = `https://t.me/smurfshop6?text=${encodeURIComponent(message)}`;
+            const telegramUsername = 'smurfshop6';
+            const url = `https://t.me/${telegramUsername}?text=${encodeURIComponent(message)}`;
             window.open(url, '_blank');
         }
 
