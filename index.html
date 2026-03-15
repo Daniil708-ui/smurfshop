@@ -16,7 +16,22 @@
         @keyframes breathe { 0%, 100% { transform: scale(1) translateY(0); opacity: 0.88; } 50% { transform: scale(1.08) translateY(0); opacity: 0.96; } }
         .clouds-container::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.15) 0%, transparent 50%); pointer-events: none; animation: glowPulse 12s ease-in-out infinite; }
         @keyframes glowPulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.7; } }
-
+/* Осветление фона ТОЛЬКО для телефонов */
+@media (max-width: 768px) {
+    .cloud-layer-1 {
+        background: 
+            linear-gradient(rgba(255, 255, 255, 0.25), 
+                           rgba(255, 255, 255, 0.25)),
+            url('assets/images/background/clouds.png') no-repeat center center fixed !important;
+        background-size: cover !important;
+        opacity: 1 !important;
+    }
+    
+    /* Если есть другие слои облаков - тоже осветляем */
+    .cloud-layer-2, .cloud-layer-3, .cloud-layer-4 {
+        opacity: 0.7 !important;
+    }
+}
         /* МОЛНИИ ИЗ УГЛОВ СВЕРХУ ВНИЗ */
         .lightning-image-container { 
             position: fixed; 
