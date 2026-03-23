@@ -483,23 +483,35 @@
         }
 
         function parseFlavors(str) {
-    if (!str || str === '-' || str === '') return [];
+    if (!str || str === '-' || str === '') {
+        return [];
+    }
     
-    // Разделяем по переносам строк или |
-    var flavors = str.split(/\n|\|/).filter(function(f) { return f.trim(); });
+    var flavors = str.split(/\n|\|/);
+    var result = [];
     
-    // Фильтруем и чистим
-    return flavors.filter(function(flavor) {
-        var f = flavor.trim();
-        // Убираем с крестиками
-        if (f.includes('❌') || f.includes('✖') || f.startsWith('X ') || f.startsWith('x ')) {
-            return false;
+    for (var i = 0; i < flavors.length; i++) {
+        var flavor = flavors[i].trim();
+        
+        // Пропускаем пустые
+        if (!flavor || flavor.length === 0) {
+            continue;
         }
-        return true;
-    }).map(function(flavor) {
-        // Убираем галочки и пробелы
-        return flavor.replace(/[✅✔✓]/g, '').replace(/^\s*[Xx]\s*/g, '').trim();
-    }).filter(function(f) { return f.length > 0; });
+        
+        // Пропускаем с крестиками
+        if (flavor.indexOf('❌') !== -1 || flavor.indexOf('✖') !== -1 || flavor.indexOf('X ') === 0) {
+            continue;
+        }
+        
+        // Убираем галочки
+        flavor = flavor.replace(/[✅✔✓]/g, '').trim();
+        
+        if (flavor.length > 0) {
+            result.push(flavor);
+        }
+    }
+    
+    return result;
 }
 
         function renderCategory(catId, products) {
