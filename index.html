@@ -453,8 +453,19 @@
                             nicotine: row.c[6]?.v || '-',
                             puffs: row.c[7]?.v || '-',
                             rechargeable: row.c[8]?.v || '-',
-                            mah: row.c[9]?.v || '-',
+                            mah: function() {
+    var val = row.c[9]?.v || '';
+    if (!val) return '-';
+    var valStr = val.toString();
+    if (valStr.toLowerCase().includes('mah')) {
+        return valStr;
+    }
+    return valStr + 'mAh';
+}(),
                             flavors: parseFlavors(row.c[10]?.v || '')
+                            inStock: function() {
+    return this.flavors && this.flavors.length > 0;
+}
                         };
                     });
 
@@ -472,15 +483,24 @@
         }
 
         function parseFlavors(str) {
-            if (!str || str === '-') return [];
-            return str.split(';').map(function(item) {
-                var parts = item.split(':');
-                return {
-                    name: parts[0]?.trim() || 'Unknown',
-                    available: parts[1]?.trim() === '✅'
-                };
-            });
+    if (!str || str === '-' || str === '') return [];
+    
+    // Разделяем по переносам строк или |
+    var flavors = str.split(/\n|\|/).filter(function(f) { return f.trim(); });
+    
+    // Фильтруем и чистим
+    return flavors.filter(function(flavor) {
+        var f = flavor.trim();
+        // Убираем с крестиками
+        if (f.includes('❌') || f.includes('✖') || f.startsWith('X ') || f.startsWith('x ')) {
+            return false;
         }
+        return true;
+    }).map(function(flavor) {
+        // Убираем галочки и пробелы
+        return flavor.replace(/[✅✔✓]/g, '').replace(/^\s*[Xx]\s*/g, '').trim();
+    }).filter(function(f) { return f.length > 0; });
+}
 
         function renderCategory(catId, products) {
             var grid = document.getElementById(catId + '-grid');
