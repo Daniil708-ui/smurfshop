@@ -428,61 +428,91 @@
         // 2. ЗАГРУЗКА ИЗ GOOGLE ТАБЛИЦЫ
         // ============================================
         var allProducts = [];
-        var SHEET_ID = '1vDqnqGe5OvOiOsjcLUEsmjpGe3QYyEQvHuSC-kxC584';
-        var SHEET_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&sheet=Products';
+      var SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT2mhHi-BcGofeeaI-8qAdpjmTm6jyCBgvnvVm2cSsb4fIzeep8TN3Y_b6BBJMXby5_W84-yDYJzZuz/pub?output=csv&gid=0';
 
-        function loadProducts() {
-            console.log('🔄 Загрузка товаров из Google Таблицы...');
+       function loadProducts() {
+    console.log('🔄 Загрузка товаров из Google Таблицы...');
+    
+    fetch(SHEET_URL)
+        .then(function(response) {
+            if (!response.ok) throw new Error('Ошибка сети: ' + response.status);
+            return response.text();
+        })
+        .then(function(csvText) {
+            // Парсим CSV
+            var lines = csvText.split('\n');
+            var headers = lines[0].split(',').map(function(h) { return h.trim().replace(/"/g, ''); });
             
-            fetch(SHEET_URL)
-                .then(function(response) {
-                    if (!response.ok) throw new Error('Ошибка сети: ' + response.status);
-                    return response.text();
-                })
-                .then(function(text) {
-                    var json = JSON.parse(text.substring(47).slice(0, -2));
-                    
-                    allProducts = json.table.rows.map(function(row) {
-                        return {
-                            id: row.c[0]?.v || '',
-                            category: row.c[1]?.v || '',
-                            model: row.c[2]?.v || '',
-                            price: row.c[3]?.v || 0,
-                            image: row.c[4]?.v || 'https://placehold.co/400x400/0a0e17/00d4ff?text=Нет+фото',
-                            description: row.c[5]?.v || '',
-                            nicotine: row.c[6]?.v || '-',
-                            puffs: row.c[7]?.v || '-',
-                            rechargeable: row.c[8]?.v || '-',
-                            mah: function() {
-    var val = row.c[9]?.v || '';
-    if (!val) return '-';
-    var valStr = val.toString();
-    if (valStr.toLowerCase().includes('mah')) {
-        return valStr;
-    }
-    return valStr + 'mAh';
-}(),
-                          flavors: parseFlavors(
-    (row.c[10]?.v || '') + '\n' + 
-    (row.c[11]?.v || '') + '\n' + 
-    (row.c[12]?.v || '')
-)
-                        };
-                    });
-
-                    console.log('✅ Загружено товаров:', allProducts.length);
-                    
-                    renderCategory('hqd', allProducts.filter(function(p) { return p.category.toLowerCase().includes('hqd'); }));
-                    renderCategory('pods', allProducts.filter(function(p) { return p.category.toLowerCase().includes('pod'); }));
-                    renderCategory('liquids', allProducts.filter(function(p) { return p.category.toLowerCase().includes('жидк') || p.category.toLowerCase().includes('liquid'); }));
-                    renderCategory('accessories', allProducts.filter(function(p) { return p.category.toLowerCase().includes('акс') || p.category.toLowerCase().includes('acc'); }));
-                })
-                .catch(function(error) {
-                    console.error('❌ Ошибка загрузки:', error);
-                    document.querySelector('.section-title').innerHTML += '<br><span style="font-size:1rem;color:#f87171;">Ошибка загрузки товаров.</span>';
+            allProducts = [];
+            
+            for (var i = 1; i < lines.length; i++) {
+                var line = lines[i].trim();
+                if (!line) continue;
+                
+                // Простой парсинг CSV (учитываем кавычки)
+                var values = [];
+                var current = '';
+                var inQuotes = false;
+                
+                for (var j = 0; j < line.length; j++) {
+                    var char = line[j];
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        values.push(current.trim().replace(/^"|"$/g, ''));
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                values.push(current.trim().replace(/^"|"$/g, ''));
+                
+                // Создаём объект продукта
+                var row = {};
+                for (var k = 0; k < headers.length; k++) {
+                    row[headers[k]] = values[k] || '';
+                }
+                
+                // Извлекаем данные (адаптируй названия колонок под свои!)
+                allProducts.push({
+                    id: i,
+                    category: row['Категория'] || '',
+                    model: row['Модель'] || '',
+                    price: parseFloat(row['Цена']) || 0,
+                    image: row['Фото'] || 'https://placehold.co/400x400/0a0e17/00d4ff?text=Нет+фото',
+                    description: row['Описание'] || '',
+                    nicotine: row['Никотин'] || '-',
+                    puffs: row['Затяжки'] || '-',
+                    rechargeable: row['Зарядка'] || '-',
+                    mah: function() {
+                        var val = row['Батарея'] || '';
+                        if (!val) return '-';
+                        if (val.toString().toLowerCase().includes('mah')) {
+                            return val;
+                        }
+                        return val + 'mAh';
+                    }(),
+                    flavors: parseFlavors(
+                        (row['Вкусы'] || '') + '\n' + 
+                        (row['Вкусы2'] || '') + '\n' + 
+                        (row['Вкусы3'] || '')
+                    )
                 });
-        }
-
+            }
+            
+            console.log('✅ Загружено товаров:', allProducts.length);
+            
+            // Рендерим категории
+            renderCategory('hqd', allProducts.filter(function(p) { return p.category.toLowerCase().includes('hqd'); }));
+            renderCategory('pods', allProducts.filter(function(p) { return p.category.toLowerCase().includes('pod'); }));
+            renderCategory('liquids', allProducts.filter(function(p) { return p.category.toLowerCase().includes('жидк') || p.category.toLowerCase().includes('liquid'); }));
+            renderCategory('accessories', allProducts.filter(function(p) { return p.category.toLowerCase().includes('акс') || p.category.toLowerCase().includes('acc'); }));
+        })
+        .catch(function(error) {
+            console.error('❌ Ошибка загрузки:', error);
+            document.querySelector('.section-title').innerHTML += '<br><span style="font-size:1rem;color:#f87171;">Ошибка при загрузке товаров.</span>';
+        });
+}
        function parseFlavors(str) {
     if (!str || str === '-') return [];
     
