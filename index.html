@@ -1,436 +1,394 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smurf Shop - Вейп шоп</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body { font-family: 'Arial', sans-serif; background: #0a0e17; color: white; overflow-x: hidden; min-height: 100vh; }
-        
-        /* ФОН */
-        .clouds-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -3; overflow: hidden; }
-        .cloud-layer-1 { position: absolute; width: 110%; height: 110%; top: -5%; left: -5%; background: url('assets/images/background/clouds.png') no-repeat center center fixed; background-size: cover; animation: breathe 15s ease-in-out infinite; }
-        .cloud-layer-2, .cloud-layer-3, .cloud-layer-4 { display: none; }
-        @keyframes breathe { 0%, 100% { transform: scale(1) translateY(0); opacity: 0.88; } 50% { transform: scale(1.08) translateY(0); opacity: 0.96; } }
-        .clouds-container::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.15) 0%, transparent 50%); pointer-events: none; animation: glowPulse 12s ease-in-out infinite; }
-        @keyframes glowPulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.7; } }
-
-     /* Фон для телефонов - БЕЗ белой дымки */
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smurf Shop - Вейп шоп</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Arial', sans-serif; background: #0a0e17; color: white; overflow-x: hidden; min-height: 100vh; }
+/* ФОН */
+.clouds-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -3; overflow: hidden; }
+.cloud-layer-1 { position: absolute; width: 110%; height: 110%; top: -5%; left: -5%; background: url('assets/images/background/clouds.png') no-repeat center center fixed; background-size: cover; animation: breathe 15s ease-in-out infinite; }
+.cloud-layer-2, .cloud-layer-3, .cloud-layer-4 { display: none; }
+@keyframes breathe { 0%, 100% { transform: scale(1) translateY(0); opacity: 0.88; } 50% { transform: scale(1.08) translateY(0); opacity: 0.96; } }
+.clouds-container::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.15) 0%, transparent 50%); pointer-events: none; animation: glowPulse 12s ease-in-out infinite; }
+@keyframes glowPulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.7; } }
+/* Фон для телефонов - БЕЗ белой дымки */
 @media (max-width: 768px) {
-    .cloud-layer-1 {
-        background: url('assets/images/background/clouds.png') no-repeat center center fixed !important;
-        background-size: cover !important;
-        opacity: 1 !important;
-    }
+.cloud-layer-1 {
+background: url('assets/images/background/clouds.png') no-repeat center center fixed !important;
+background-size: cover !important;
+opacity: 1 !important;
 }
-
-        /* МОЛНИИ */
-        .lightning-image-container { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            pointer-events: none; 
-            z-index: 0; 
-            overflow: hidden;
-        }
-
-        .lightning-img { 
-            position: absolute; 
-            width: 60%; 
-            height: 100%; 
-            opacity: 0; 
-            mix-blend-mode: screen; 
-            filter: drop-shadow(0 0 15px #fff) drop-shadow(0 0 30px #00eaff); 
-        }
-
-        .lightning-img-left { top: -60%; left: -20%; transform-origin: top center; }
-        .lightning-img-right { top: -60%; right: -20%; transform-origin: top center; }
-
-        .lightning-img.active { animation: lightningStrikeNatural 0.8s ease-out forwards; }
-
-        @keyframes lightningStrikeNatural { 
-            0% { opacity: 0; } 
-            5% { opacity: 0.9; } 
-            10% { opacity: 0.3; } 
-            15% { opacity: 0.7; } 
-            20% { opacity: 0.2; } 
-            25% { opacity: 0.5; } 
-            30% { opacity: 0.1; } 
-            40%, 100% { opacity: 0; } 
-        }
-
-        .lightning-img:not(.active) { opacity: 0 !important; }
-
-        .flash-overlay { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.3) 0%, transparent 70%); 
-            opacity: 0; 
-            pointer-events: none; 
-            z-index: 1; 
-        }
-
-        .flash-overlay.active { animation: screenFlash 0.8s ease-out; }
-
-        @keyframes screenFlash { 0%, 100% { opacity: 0; } 20% { opacity: 1; } }
-
-        @media (max-width: 768px) {
-            .lightning-img { width: 80%; height: 100%; }
-            .lightning-img-left { top: -40%; left: -10%; }
-            .lightning-img-right { top: -40%; right: -10%; }
-        }
-
-        /* ШАПКА */
-        .header { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; background: rgba(10, 14, 23, 0.95); backdrop-filter: blur(10px); border-bottom: 3px solid #00d4ff; position: sticky; top: 0; z-index: 1000; }
-        .logo-container { display: flex; align-items: center; gap: 20px; }
-        .logo { width: 50px; height: 50px; background: black; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #00d4ff; overflow: hidden; }
-        .logo img { width: 100%; height: 100%; object-fit: contain; }
-        .site-title { font-size: 2rem; font-weight: 900; color: white; text-shadow: 0 0 20px rgba(0, 212, 255, 0.8); letter-spacing: 3px; }
-        .nav { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-        .nav-centered { position: absolute; left: 50%; transform: translateX(-50%); }
-        .nav a { color: #b0c4de; text-decoration: none; padding: 10px 20px; background: rgba(0, 212, 255, 0.15); border: 2px solid #00d4ff; border-radius: 25px; transition: 0.3s; font-weight: 600; }
-        .nav a:hover { color: white; background: #00d4ff; transform: translateY(-3px); }
-        .contacts { display: flex; align-items: center; gap: 15px; }
-        
-        /* КНОПКИ СОЦСЕТЕЙ - ОДИНАКОВЫЕ */
-        .vk-btn, .telegram { 
-            color: white; 
-            text-decoration: none; 
-            padding: 10px 22px; 
-            border-radius: 25px; 
-            border: 2px solid #00d4ff; 
-            transition: 0.3s; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            font-weight: 600;
-            font-size: 0.95rem;
-            white-space: nowrap;
-        }
-        
-        .vk-btn { background: #0077FF; }
-        .vk-btn:hover { background: #0099FF; transform: translateY(-3px); }
-        
-        .telegram { background: #0088cc; }
-        .telegram:hover { background: #0099dd; transform: translateY(-3px); }
-        
-        /* ИКОНКИ В КНОПКАХ */
-        .vk-btn img, .telegram img { width: 20px; height: 20px; }
-
-        /* КНОПКИ */
-        .storm-button { display: inline-block; text-decoration: none; padding: 18px 45px; background: rgba(0, 80, 120, 0.4); border: 2px solid #00d4ff; border-radius: 30px; color: white; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; transition: 0.3s; box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3); position: relative; overflow: hidden; }
-        .storm-button::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.4), transparent); transition: 0.5s; }
-        .storm-button:hover { background: rgba(0, 100, 150, 0.6); transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0, 212, 255, 0.5); }
-        .storm-button:hover::before { left: 100%; }
-
-        /* КАТАЛОГ */
-        .hero { padding: 100px 30px; text-align: center; background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.15) 0%, transparent 70%); position: relative; z-index: 1; }
-        .hero h1 { font-size: 3rem; margin-bottom: 20px; color: #e0f0ff; text-shadow: 0 0 30px rgba(0, 212, 255, 0.8); }
-        .hero p { font-size: 1.2rem; color: #b0c4de; margin-bottom: 40px; max-width: 800px; margin: 0 auto 40px; line-height: 1.6; }
-        .button-group { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; }
-        
-        .catalog { padding: 80px 30px; position: relative; z-index: 1; }
-        .container { max-width: 1400px; margin: 0 auto; }
-        .section-title { text-align: center; font-size: 2.5rem; margin-bottom: 60px; color: #00d4ff; text-shadow: 0 0 20px rgba(0, 212, 255, 0.6); }
-        .category-section { margin-bottom: 80px; scroll-margin-top: 120px; }
-        .category-title { font-size: 2rem; color: #00d4ff; margin-bottom: 30px; padding-bottom: 10px; border-bottom: 3px solid rgba(0, 212, 255, 0.3); display: inline-block; }
-        
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
-        .product-card { background: rgba(13, 27, 42, 0.9); border-radius: 20px; overflow: hidden; border: 2px solid rgba(0, 212, 255, 0.3); transition: 0.3s; cursor: pointer; }
-        .product-card:hover { transform: translateY(-10px); border-color: #00d4ff; box-shadow: 0 15px 40px rgba(0, 212, 255, 0.4); }
-        .product-image { height: 220px; background: rgba(10, 14, 23, 0.8); display: flex; align-items: center; justify-content: center; border-bottom: 2px solid rgba(0, 212, 255, 0.2); position: relative; overflow: hidden; }
-        .product-image img { width: 100%; height: 100%; object-fit: cover; }
-        .stock-badge { position: absolute; top: 10px; right: 10px; background: #4ade80; color: #0a0e17; padding: 5px 12px; border-radius: 15px; font-weight: 700; font-size: 0.8rem; }
-        .stock-badge.out { background: #f87171; color: white; }
-        .product-info { padding: 20px; }
-        .product-title { font-size: 1.4rem; margin-bottom: 10px; color: white; font-weight: 700; }
-        .product-price { font-size: 1.8rem; font-weight: 900; color: #00d4ff; margin: 15px 0; }
-        .product-preview { color: #b0c4de; font-size: 0.9rem; margin-bottom: 15px; }
-        .view-details { color: #00d4ff; font-weight: 600; font-size: 0.9rem; text-decoration: underline; }
-        .add-to-cart-btn { background: #00d4ff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; width: 100%; }
-        .add-to-cart-btn:hover { background: #00b8d9; transform: scale(1.05); }
-        .added-to-cart { background: #4CAF50 !important; color: #fff !important; }
-
-        /* КОРЗИНА */
-        .cart-section { padding: 60px 20px; background: rgba(0, 0, 0, 0.5); border-top: 2px solid #00d4ff; scroll-margin-top: 100px; }
-        .cart-section h2 { text-align: center; color: #00d4ff; margin-bottom: 30px; font-size: 2rem; }
-        .cart-items { max-width: 800px; margin: 0 auto 30px; }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0, 217, 255, 0.1); border: 1px solid #00d4ff; border-radius: 15px; padding: 15px 20px; margin-bottom: 15px; flex-wrap: wrap; gap: 15px; }
-        .cart-item-info { flex: 1; min-width: 200px; }
-        .cart-item-name { font-size: 1.1rem; color: #fff; margin-bottom: 5px; }
-        .cart-item-price { color: #00d4ff; font-weight: bold; }
-        .cart-item-quantity { display: flex; align-items: center; gap: 10px; margin: 0 15px; }
-        .cart-item-quantity button { background: #00d4ff; border: none; color: #000; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-weight: bold; }
-        .cart-item-quantity span { color: #fff; font-size: 1.1rem; min-width: 25px; text-align: center; }
-        .cart-item-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-        .cart-item-remove { background: #ff4444; border: none; color: #fff; padding: 8px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
-        .cart-item-remove:hover { background: #cc0000; }
-        .cart-item-order { background: #4CAF50; border: none; color: #fff; padding: 8px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: 600; }
-        .cart-item-order:hover { background: #3d8b40; transform: scale(1.05); }
-        .cart-empty { text-align: center; color: #888; font-size: 1.2rem; padding: 40px; }
-        .cart-total { text-align: center; font-size: 1.5rem; color: #00d4ff; margin-bottom: 20px; }
-        .cart-total span:last-child { font-weight: bold; margin-left: 10px; }
-        .cart-buttons { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
-        .cart-order-btn, .cart-clear-btn { display: block; padding: 15px 30px; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; min-width: 200px; }
-        .cart-order-btn { background: #00d4ff; color: #000; }
-        .cart-order-btn:hover { background: #00b8d9; transform: scale(1.05); }
-        .cart-clear-btn { background: #ff4444; color: #fff; }
-        .cart-clear-btn:hover { background: #cc0000; }
-
-        /* МОДАЛКА */
-        .modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); overflow-y: auto; }
-        .modal-content { background: linear-gradient(135deg, #0f2027, #2c5364); margin: 5% auto; padding: 0; border-radius: 25px; width: 90%; max-width: 700px; border: 3px solid #00d4ff; position: relative; animation: modalSlide 0.3s; }
-        @keyframes modalSlide { from { opacity: 0; transform: translateY(-50px); } to { opacity: 1; transform: translateY(0); } }
-        .modal-close { position: absolute; right: 20px; top: 20px; font-size: 2.5rem; color: #00d4ff; cursor: pointer; z-index: 10; background: rgba(0,212,255,0.1); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .modal-header { padding: 30px; text-align: center; border-bottom: 2px solid rgba(0,212,255,0.3); }
-        .modal-header img { width: 100%; max-width: 400px; border-radius: 15px; margin-bottom: 20px; }
-        .modal-body { padding: 30px; }
-        .modal-section { margin-bottom: 25px; }
-        .modal-section h3 { color: #00d4ff; margin-bottom: 15px; border-bottom: 2px solid rgba(0,212,255,0.3); padding-bottom: 8px; }
-        .specs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
-        .spec-item { background: rgba(0,212,255,0.1); padding: 15px; border-radius: 12px; border: 1px solid rgba(0,212,255,0.3); }
-        .spec-label { color: #b0c4de; font-size: 0.85rem; }
-        .spec-value { color: white; font-weight: 700; font-size: 1.1rem; }
-        .flavors-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
-        .flavor-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(0,212,255,0.05); border-radius: 8px; border: 1px solid rgba(0,212,255,0.2); }
-        .flavor-item.available { border-color: #4ade80; background: rgba(74,222,128,0.1); }
-        .flavor-item.unavailable { border-color: #f87171; opacity: 0.6; }
-        .modal-footer { padding: 20px 30px 30px; text-align: center; border-top: 2px solid rgba(0,212,255,0.3); }
-        .modal-price { font-size: 2.5rem; font-weight: 900; color: #00d4ff; margin-bottom: 20px; }
-        .modal-buttons { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
-        .order-btn { background: linear-gradient(180deg, #1e3a5f, #0d1b2a); border: 3px solid #00d4ff; color: white; padding: 15px 50px; font-size: 1.2rem; font-weight: 700; border-radius: 30px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-        .order-btn:hover { background: #00d4ff; color: #0a0e17; transform: scale(1.05); }
-        .modal-add-cart { background: #00d4ff; color: #000; border: 3px solid #00d4ff; padding: 15px 50px; font-size: 1.2rem; font-weight: 700; border-radius: 30px; cursor: pointer; transition: 0.3s; }
-        .modal-add-cart:hover { background: #00b8d9; transform: scale(1.05); }
-
-        /* ПОДВАЛ */
-        .footer { background: rgba(10,14,23,0.98); padding: 60px 30px 30px; border-top: 3px solid #00d4ff; margin-top: 80px; position: relative; z-index: 1; }
-        .footer-content { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; margin-bottom: 40px; }
-        .footer-section h4 { color: #00d4ff; margin-bottom: 20px; }
-        .footer-section p { margin-bottom: 10px; color: #b0c4de; line-height: 1.6; }
-        .footer-section a { color: #00d4ff; text-decoration: none; }
-        .footer-section a:hover { text-decoration: underline; }
-        .warning-18 { 
-            background: rgba(255,0,0,0.1); 
-            border: 2px solid rgba(255,0,0,0.4); 
-            padding: 10px 15px !important; 
-            border-radius: 10px; 
-            max-width: 280px;
-            margin: 0 auto;
-            display: inline-block;
-            height: auto !important;
-        }
-        .warning-18 h4 { 
-            color: #ff5252 !important; 
-            font-size: 0.95rem !important;
-            margin-bottom: 8px !important;
-            line-height: 1.2 !important;
-        }
-        .warning-18 p { 
-            font-size: 0.8rem !important;
-            line-height: 1.3 !important;
-            margin-bottom: 0 !important;
-        }
-        .footer-bottom { text-align: center; padding-top: 30px; border-top: 1px solid rgba(0,212,255,0.3); color: #b0c4de; }
-
-        @media (max-width: 768px) {
-            .nav-centered { position: static; transform: none; left: auto; margin-top: 15px; order: 3; width: 100%; }
-            .header { padding: 15px 20px; flex-wrap: wrap; }
-            .contacts { flex-wrap: wrap; justify-content: center; width: 100%; margin-top: 15px; }
-            .vk-btn, .telegram { width: 100%; max-width: 280px; justify-content: center; }
-            .hero h1 { font-size: 2rem; }
-            .storm-button { width: 100%; max-width: 300px; }
-            .header, .шапка, header, .fixed-header, .sticky-header { position: relative !important; top: 0 !important; z-index: auto !important; }
-            .cart-item { flex-direction: column; align-items: stretch; text-align: center; }
-            .cart-item-info { width: 100%; }
-            .cart-item-quantity { justify-content: center; margin: 15px 0; }
-            .cart-item-actions { justify-content: center; width: 100%; }
-            .cart-buttons { flex-direction: column; align-items: center; }
-            .cart-order-btn, .cart-clear-btn { width: 100%; max-width: 300px; }
-            .modal-buttons { flex-direction: column; }
-            .order-btn, .modal-add-cart { width: 100%; }
-        }
-    </style>
+}
+/* МОЛНИИ */
+.lightning-image-container {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+pointer-events: none;
+z-index: 0;
+overflow: hidden;
+}
+.lightning-img {
+position: absolute;
+width: 60%;
+height: 100%;
+opacity: 0;
+mix-blend-mode: screen;
+filter: drop-shadow(0 0 15px #fff) drop-shadow(0 0 30px #00eaff);
+}
+.lightning-img-left { top: -60%; left: -20%; transform-origin: top center; }
+.lightning-img-right { top: -60%; right: -20%; transform-origin: top center; }
+.lightning-img.active { animation: lightningStrikeNatural 0.8s ease-out forwards; }
+@keyframes lightningStrikeNatural {
+0% { opacity: 0; }
+5% { opacity: 0.9; }
+10% { opacity: 0.3; }
+15% { opacity: 0.7; }
+20% { opacity: 0.2; }
+25% { opacity: 0.5; }
+30% { opacity: 0.1; }
+40%, 100% { opacity: 0; }
+}
+.lightning-img:not(.active) { opacity: 0 !important; }
+.flash-overlay {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.3) 0%, transparent 70%);
+opacity: 0;
+pointer-events: none;
+z-index: 1;
+}
+.flash-overlay.active { animation: screenFlash 0.8s ease-out; }
+@keyframes screenFlash { 0%, 100% { opacity: 0; } 20% { opacity: 1; } }
+@media (max-width: 768px) {
+.lightning-img { width: 80%; height: 100%; }
+.lightning-img-left { top: -40%; left: -10%; }
+.lightning-img-right { top: -40%; right: -10%; }
+}
+/* ШАПКА */
+.header { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; background: rgba(10, 14, 23, 0.95); backdrop-filter: blur(10px); border-bottom: 3px solid #00d4ff; position: sticky; top: 0; z-index: 1000; }
+.logo-container { display: flex; align-items: center; gap: 20px; }
+.logo { width: 50px; height: 50px; background: black; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #00d4ff; overflow: hidden; }
+.logo img { width: 100%; height: 100%; object-fit: contain; }
+.site-title { font-size: 2rem; font-weight: 900; color: white; text-shadow: 0 0 20px rgba(0, 212, 255, 0.8); letter-spacing: 3px; }
+.nav { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.nav-centered { position: absolute; left: 50%; transform: translateX(-50%); }
+.nav a { color: #b0c4de; text-decoration: none; padding: 10px 20px; background: rgba(0, 212, 255, 0.15); border: 2px solid #00d4ff; border-radius: 25px; transition: 0.3s; font-weight: 600; }
+.nav a:hover { color: white; background: #00d4ff; transform: translateY(-3px); }
+.contacts { display: flex; align-items: center; gap: 15px; }
+/* КНОПКИ СОЦСЕТЕЙ - ОДИНАКОВЫЕ */
+.vk-btn, .telegram {
+color: white;
+text-decoration: none;
+padding: 10px 22px;
+border-radius: 25px;
+border: 2px solid #00d4ff;
+transition: 0.3s;
+display: flex;
+align-items: center;
+gap: 8px;
+font-weight: 600;
+font-size: 0.95rem;
+white-space: nowrap;
+}
+.vk-btn { background: #0077FF; }
+.vk-btn:hover { background: #0099FF; transform: translateY(-3px); }
+.telegram { background: #0088cc; }
+.telegram:hover { background: #0099dd; transform: translateY(-3px); }
+/* ИКОНКИ В КНОПКАХ */
+.vk-btn img, .telegram img { width: 20px; height: 20px; }
+/* КНОПКИ */
+.storm-button { display: inline-block; text-decoration: none; padding: 18px 45px; background: rgba(0, 80, 120, 0.4); border: 2px solid #00d4ff; border-radius: 30px; color: white; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; transition: 0.3s; box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3); position: relative; overflow: hidden; }
+.storm-button::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.4), transparent); transition: 0.5s; }
+.storm-button:hover { background: rgba(0, 100, 150, 0.6); transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0, 212, 255, 0.5); }
+.storm-button:hover::before { left: 100%; }
+/* КАТАЛОГ */
+.hero { padding: 100px 30px; text-align: center; background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.15) 0%, transparent 70%); position: relative; z-index: 1; }
+.hero h1 { font-size: 3rem; margin-bottom: 20px; color: #e0f0ff; text-shadow: 0 0 30px rgba(0, 212, 255, 0.8); }
+.hero p { font-size: 1.2rem; color: #b0c4de; margin-bottom: 40px; max-width: 800px; margin: 0 auto 40px; line-height: 1.6; }
+.button-group { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; }
+.catalog { padding: 80px 30px; position: relative; z-index: 1; }
+.container { max-width: 1400px; margin: 0 auto; }
+.section-title { text-align: center; font-size: 2.5rem; margin-bottom: 60px; color: #00d4ff; text-shadow: 0 0 20px rgba(0, 212, 255, 0.6); }
+.category-section { margin-bottom: 80px; scroll-margin-top: 120px; }
+.category-title { font-size: 2rem; color: #00d4ff; margin-bottom: 30px; padding-bottom: 10px; border-bottom: 3px solid rgba(0, 212, 255, 0.3); display: inline-block; }
+.products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+.product-card { background: rgba(13, 27, 42, 0.9); border-radius: 20px; overflow: hidden; border: 2px solid rgba(0, 212, 255, 0.3); transition: 0.3s; cursor: pointer; }
+.product-card:hover { transform: translateY(-10px); border-color: #00d4ff; box-shadow: 0 15px 40px rgba(0, 212, 255, 0.4); }
+.product-image { height: 220px; background: rgba(10, 14, 23, 0.8); display: flex; align-items: center; justify-content: center; border-bottom: 2px solid rgba(0, 212, 255, 0.2); position: relative; overflow: hidden; }
+.product-image img { width: 100%; height: 100%; object-fit: cover; }
+.stock-badge { position: absolute; top: 10px; right: 10px; background: #4ade80; color: #0a0e17; padding: 5px 12px; border-radius: 15px; font-weight: 700; font-size: 0.8rem; }
+.stock-badge.out { background: #f87171; color: white; }
+.product-info { padding: 20px; }
+.product-title { font-size: 1.4rem; margin-bottom: 10px; color: white; font-weight: 700; }
+.product-price { font-size: 1.8rem; font-weight: 900; color: #00d4ff; margin: 15px 0; }
+.product-preview { color: #b0c4de; font-size: 0.9rem; margin-bottom: 15px; }
+.view-details { color: #00d4ff; font-weight: 600; font-size: 0.9rem; text-decoration: underline; }
+.add-to-cart-btn { background: #00d4ff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; width: 100%; }
+.add-to-cart-btn:hover { background: #00b8d9; transform: scale(1.05); }
+.added-to-cart { background: #4CAF50 !important; color: #fff !important; }
+/* КОРЗИНА */
+.cart-section { padding: 60px 20px; background: rgba(0, 0, 0, 0.5); border-top: 2px solid #00d4ff; scroll-margin-top: 100px; }
+.cart-section h2 { text-align: center; color: #00d4ff; margin-bottom: 30px; font-size: 2rem; }
+.cart-items { max-width: 800px; margin: 0 auto 30px; }
+.cart-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0, 217, 255, 0.1); border: 1px solid #00d4ff; border-radius: 15px; padding: 15px 20px; margin-bottom: 15px; flex-wrap: wrap; gap: 15px; }
+.cart-item-info { flex: 1; min-width: 200px; }
+.cart-item-name { font-size: 1.1rem; color: #fff; margin-bottom: 5px; }
+.cart-item-price { color: #00d4ff; font-weight: bold; }
+.cart-item-quantity { display: flex; align-items: center; gap: 10px; margin: 0 15px; }
+.cart-item-quantity button { background: #00d4ff; border: none; color: #000; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-weight: bold; }
+.cart-item-quantity span { color: #fff; font-size: 1.1rem; min-width: 25px; text-align: center; }
+.cart-item-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.cart-item-remove { background: #ff4444; border: none; color: #fff; padding: 8px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+.cart-item-remove:hover { background: #cc0000; }
+.cart-item-order { background: #4CAF50; border: none; color: #fff; padding: 8px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: 600; }
+.cart-item-order:hover { background: #3d8b40; transform: scale(1.05); }
+.cart-empty { text-align: center; color: #888; font-size: 1.2rem; padding: 40px; }
+.cart-total { text-align: center; font-size: 1.5rem; color: #00d4ff; margin-bottom: 20px; }
+.cart-total span:last-child { font-weight: bold; margin-left: 10px; }
+.cart-buttons { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+.cart-order-btn, .cart-clear-btn { display: block; padding: 15px 30px; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; min-width: 200px; }
+.cart-order-btn { background: #00d4ff; color: #000; }
+.cart-order-btn:hover { background: #00b8d9; transform: scale(1.05); }
+.cart-clear-btn { background: #ff4444; color: #fff; }
+.cart-clear-btn:hover { background: #cc0000; }
+/* МОДАЛКА */
+.modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); overflow-y: auto; }
+.modal-content { background: linear-gradient(135deg, #0f2027, #2c5364); margin: 5% auto; padding: 0; border-radius: 25px; width: 90%; max-width: 700px; border: 3px solid #00d4ff; position: relative; animation: modalSlide 0.3s; }
+@keyframes modalSlide { from { opacity: 0; transform: translateY(-50px); } to { opacity: 1; transform: translateY(0); } }
+.modal-close { position: absolute; right: 20px; top: 20px; font-size: 2.5rem; color: #00d4ff; cursor: pointer; z-index: 10; background: rgba(0,212,255,0.1); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.modal-header { padding: 30px; text-align: center; border-bottom: 2px solid rgba(0,212,255,0.3); }
+.modal-header img { width: 100%; max-width: 400px; border-radius: 15px; margin-bottom: 20px; }
+.modal-body { padding: 30px; }
+.modal-section { margin-bottom: 25px; }
+.modal-section h3 { color: #00d4ff; margin-bottom: 15px; border-bottom: 2px solid rgba(0,212,255,0.3); padding-bottom: 8px; }
+.specs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+.spec-item { background: rgba(0,212,255,0.1); padding: 15px; border-radius: 12px; border: 1px solid rgba(0,212,255,0.3); }
+.spec-label { color: #b0c4de; font-size: 0.85rem; }
+.spec-value { color: white; font-weight: 700; font-size: 1.1rem; }
+.flavors-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.flavor-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(0,212,255,0.05); border-radius: 8px; border: 1px solid rgba(0,212,255,0.2); }
+.flavor-item.available { border-color: #4ade80; background: rgba(74,222,128,0.1); }
+.flavor-item.unavailable { border-color: #f87171; opacity: 0.6; }
+.modal-footer { padding: 20px 30px 30px; text-align: center; border-top: 2px solid rgba(0,212,255,0.3); }
+.modal-price { font-size: 2.5rem; font-weight: 900; color: #00d4ff; margin-bottom: 20px; }
+.modal-buttons { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+.order-btn { background: linear-gradient(180deg, #1e3a5f, #0d1b2a); border: 3px solid #00d4ff; color: white; padding: 15px 50px; font-size: 1.2rem; font-weight: 700; border-radius: 30px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+.order-btn:hover { background: #00d4ff; color: #0a0e17; transform: scale(1.05); }
+.modal-add-cart { background: #00d4ff; color: #000; border: 3px solid #00d4ff; padding: 15px 50px; font-size: 1.2rem; font-weight: 700; border-radius: 30px; cursor: pointer; transition: 0.3s; }
+.modal-add-cart:hover { background: #00b8d9; transform: scale(1.05); }
+/* ПОДВАЛ */
+.footer { background: rgba(10,14,23,0.98); padding: 60px 30px 30px; border-top: 3px solid #00d4ff; margin-top: 80px; position: relative; z-index: 1; }
+.footer-content { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; margin-bottom: 40px; }
+.footer-section h4 { color: #00d4ff; margin-bottom: 20px; }
+.footer-section p { margin-bottom: 10px; color: #b0c4de; line-height: 1.6; }
+.footer-section a { color: #00d4ff; text-decoration: none; }
+.footer-section a:hover { text-decoration: underline; }
+.warning-18 {
+background: rgba(255,0,0,0.1);
+border: 2px solid rgba(255,0,0,0.4);
+padding: 10px 15px !important;
+border-radius: 10px;
+max-width: 280px;
+margin: 0 auto;
+display: inline-block;
+height: auto !important;
+}
+.warning-18 h4 {
+color: #ff5252 !important;
+font-size: 0.95rem !important;
+margin-bottom: 8px !important;
+line-height: 1.2 !important;
+}
+.warning-18 p {
+font-size: 0.8rem !important;
+line-height: 1.3 !important;
+margin-bottom: 0 !important;
+}
+.footer-bottom { text-align: center; padding-top: 30px; border-top: 1px solid rgba(0,212,255,0.3); color: #b0c4de; }
+@media (max-width: 768px) {
+.nav-centered { position: static; transform: none; left: auto; margin-top: 15px; order: 3; width: 100%; }
+.header { padding: 15px 20px; flex-wrap: wrap; }
+.contacts { flex-wrap: wrap; justify-content: center; width: 100%; margin-top: 15px; }
+.vk-btn, .telegram { width: 100%; max-width: 280px; justify-content: center; }
+.hero h1 { font-size: 2rem; }
+.storm-button { width: 100%; max-width: 300px; }
+.header, .шапка, header, .fixed-header, .sticky-header { position: relative !important; top: 0 !important; z-index: auto !important; }
+.cart-item { flex-direction: column; align-items: stretch; text-align: center; }
+.cart-item-info { width: 100%; }
+.cart-item-quantity { justify-content: center; margin: 15px 0; }
+.cart-item-actions { justify-content: center; width: 100%; }
+.cart-buttons { flex-direction: column; align-items: center; }
+.cart-order-btn, .cart-clear-btn { width: 100%; max-width: 300px; }
+.modal-buttons { flex-direction: column; }
+.order-btn, .modal-add-cart { width: 100%; }
+}
+</style>
 </head>
 <body>
-    <!-- ФОН И ЭФФЕКТЫ -->
-    <div class="lightning-image-container">
-        <img src="assets/images/lightning/lightning-bolts.png" alt="" class="lightning-img lightning-img-left" id="lightning-left-img">
-        <img src="assets/images/lightning/lightning-bolts.png" alt="" class="lightning-img lightning-img-right" id="lightning-right-img">
-    </div>
-    <div class="clouds-container"><div class="cloud-layer-1"></div></div>
-    <div class="flash-overlay" id="flash-overlay"></div>
+<!-- ФОН И ЭФФЕКТЫ -->
+<div class="lightning-image-container">
+<img src="assets/images/lightning/lightning-bolts.png" alt="" class="lightning-img lightning-img-left" id="lightning-left-img">
+<img src="assets/images/lightning/lightning-bolts.png" alt="" class="lightning-img lightning-img-right" id="lightning-right-img">
+</div>
+<div class="clouds-container"><div class="cloud-layer-1"></div></div>
+<div class="flash-overlay" id="flash-overlay"></div>
+<!-- ШАПКА -->
+<header class="header">
+<div class="logo-container">
+<div class="logo"><img src="assets/images/logo/logo-white.png" alt="Smurf Shop"></div>
+<h1 class="site-title">SMURF SHOP</h1>
+</div>
+<nav class="nav nav-centered">
+<a href="#hqd">HQD</a><a href="#pods">POD-системы</a><a href="#liquids">Жидкости</a><a href="#accessories">Аксессуары</a><a href="#cart">🛒 Корзина</a>
+</nav>
+<div class="contacts">
+<a href="https://vk.ru/smurfteamss" target="_blank" class="vk-btn">
+<img src="https://upload.wikimedia.org/wikipedia/commons/2/21/VK.com-logo.svg" alt="VK">
+ВКонтакте
+</a>
+<a href="https://t.me/smurfshop6" target="_blank" class="telegram">
+<img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram">
+Telegram
+</a>
+</div>
+</header>
+<!-- HERO -->
+<section class="hero">
+<h1>ЛУЧШИЙ ВЕЙП ШОП<br>В ЛАБИНСКОМ РАЙОНЕ</h1>
+<p>Широкий выбор одноразок, POD-систем и жидкостей.<br>Быстрая доставка по району.</p>
+<div class="button-group">
+<a href="#catalog" class="storm-button">⚡ Смотреть каталог</a>
+<a href="https://t.me/smurfshop6" target="_blank" class="storm-button">📩 Написать в Telegram</a>
+</div>
+</section>
+<!-- КАТАЛОГ -->
+<section id="catalog" class="catalog">
+<div class="container">
+<h2 class="section-title">⚡ КАТАЛОГ ТОВАРОВ ⚡</h2>
+<div id="hqd" class="category-section"><h3 class="category-title">🔥 HQD Одноразки</h3><div class="products-grid" id="hqd-grid"></div></div>
+<div id="pods" class="category-section"><h3 class="category-title">⚡ POD-системы</h3><div class="products-grid" id="pods-grid"></div></div>
+<div id="liquids" class="category-section"><h3 class="category-title">💧 Жидкости</h3><div class="products-grid" id="liquids-grid"></div></div>
+<div id="accessories" class="category-section"><h3 class="category-title">🛠 Аксессуары</h3><div class="products-grid" id="accessories-grid"></div></div>
+</div>
+</section>
+<!-- КОРЗИНА -->
+<section id="cart" class="cart-section">
+<div class="container">
+<h2>🛒 Корзина</h2>
+<div id="cart-items" class="cart-items">
+<p class="cart-empty">Корзина пуста</p>
+</div>
+<div class="cart-total">
+<span>Итого:</span>
+<span id="cart-total-price">0 ₽</span>
+</div>
+<div class="cart-buttons">
+<button class="cart-order-btn" onclick="orderCart()">📦 Заказать всё</button>
+<button class="cart-clear-btn" onclick="clearCart()">🗑️ Очистить корзину</button>
+</div>
+</div>
+</section>
+<!-- МОДАЛКА -->
+<div id="product-modal" class="modal">
+<div class="modal-content">
+<span class="modal-close" onclick="closeModal()">&times;</span>
+<div id="modal-body"></div>
+</div>
+</div>
+<!-- ПОДВАЛ -->
+<footer class="footer">
+<div class="footer-content">
+<div class="footer-section">
+<h4>⚡ Smurf Shop</h4>
+<p>Лучший вейп шоп в Лабинском районе</p>
+<br>
+<p style="color: #b0c4de; line-height: 1.8; font-size: 0.95rem;">
+У нас ты найдёшь не просто товар, а удобство, комфорт и уверенность в каждой покупке.
+</p>
+<br>
+<p style="color: #00d4ff; font-weight: 700; margin-bottom: 15px;">Почему выбирают SMURF SHOP?</p>
+<ul style="color: #b0c4de; line-height: 2; list-style: none; padding: 0;">
+<li>• Индивидуальный подход к каждому клиенту</li>
+<li>• Всегда на связи — помогу выбрать то, что подойдёт именно тебе</li>
+<li>• Только качественные товары</li>
+<li>• Лучшие цены</li>
+<li>• Быстрая доставка по городу и району</li>
+</ul>
+</div>
+<div class="footer-section">
+<h4>Контакты</h4>
+<p><strong>VK:</strong> <a href="https://vk.ru/smurfteamss" target="_blank">smurfteamss</a></p>
+<p><strong>Telegram:</strong> <a href="https://t.me/smurfshop6" target="_blank">@smurfshop6</a></p>
+</div>
+<div class="footer-section">
+<h4>Режим работы</h4>
+<p>Ежедневно с 10:00 до 22:00</p>
+</div>
+<div class="footer-section warning-18">
+<h4>⚠️ ПРЕДУПРЕЖДЕНИЕ 18+</h4>
+<p>Продукция содержит никотин. Продажа несовершеннолетним запрещена.</p>
+</div>
+</div>
+<div class="footer-bottom">
+<p>&copy; 2024 Smurf Shop. Все права защищены. ⚡</p>
+</div>
+</footer>
+<script>
+// ============================================
+// 1. АНИМАЦИЯ МОЛНИЙ
+// ============================================
+function getRandomAngle() {
+return Math.floor(Math.random() * 20) + 15;
+}
+function strikeLightning() {
+var left = document.getElementById('lightning-left-img');
+var right = document.getElementById('lightning-right-img');
+var overlay = document.getElementById('flash-overlay');
+var leftAngle = getRandomAngle();
+var rightAngle = -getRandomAngle();
+var leftSkew = (Math.random() * 20 - 10).toFixed(2);
+var rightSkew = (Math.random() * 20 - 10).toFixed(2);
+left.style.transform = 'rotate(' + leftAngle + 'deg) skewX(' + leftSkew + 'deg)';
+right.style.transform = 'rotate(' + rightAngle + 'deg) skewX(' + rightSkew + 'deg) scaleX(-1)';
+if (Math.random() > 0.3) left.classList.add('active');
+if (Math.random() > 0.3) right.classList.add('active');
+overlay.classList.add('active');
+setTimeout(function() {
+left.classList.remove('active');
+right.classList.remove('active');
+overlay.classList.remove('active');
+setTimeout(function() {
+left.style.transform = '';
+right.style.transform = '';
+}, 100);
+}, 800);
+}
+function scheduleLightning() {
+setTimeout(function() {
+strikeLightning();
+if (Math.random() > 0.7) {
+setTimeout(strikeLightning, 300 + Math.random() * 400);
+}
+scheduleLightning();
+}, 12000 + Math.random() * 8000);
+}
+// ============================================
+// 2. ЗАГРУЗКА ИЗ GOOGLE ТАБЛИЦЫ
+// ============================================
+var allProducts = [];
+var SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT2mhHi-BcGofeeaI-8qAdpjmTm6jyCBgvnvVm2cSsb4fIzeep8TN3Y_b6BBJMXby5_W84-yDYJzZuz/pub?output=csv&gid=0';
 
-    <!-- ШАПКА -->
-    <header class="header">
-        <div class="logo-container">
-            <div class="logo"><img src="assets/images/logo/logo-white.png" alt="Smurf Shop"></div>
-            <h1 class="site-title">SMURF SHOP</h1>
-        </div>
-        <nav class="nav nav-centered">
-            <a href="#hqd">HQD</a><a href="#pods">POD-системы</a><a href="#liquids">Жидкости</a><a href="#accessories">Аксессуары</a><a href="#cart">🛒 Корзина</a>
-        </nav>
-        <div class="contacts">
-            <a href="https://vk.ru/smurfteamss" target="_blank" class="vk-btn">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/2/21/VK.com-logo.svg" alt="VK">
-                ВКонтакте
-            </a>
-            <a href="https://t.me/smurfshop6" target="_blank" class="telegram">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram">
-                Telegram
-            </a>
-        </div>
-    </header>
-
-    <!-- HERO -->
-    <section class="hero">
-        <h1>ЛУЧШИЙ ВЕЙП ШОП<br>В ЛАБИНСКОМ РАЙОНЕ</h1>
-        <p>Широкий выбор одноразок, POD-систем и жидкостей.<br>Быстрая доставка по району.</p>
-        <div class="button-group">
-            <a href="#catalog" class="storm-button">⚡ Смотреть каталог</a>
-            <a href="https://t.me/smurfshop6" target="_blank" class="storm-button">📩 Написать в Telegram</a>
-        </div>
-    </section>
-
-    <!-- КАТАЛОГ -->
-    <section id="catalog" class="catalog">
-        <div class="container">
-            <h2 class="section-title">⚡ КАТАЛОГ ТОВАРОВ ⚡</h2>
-            
-            <div id="hqd" class="category-section"><h3 class="category-title">🔥 HQD Одноразки</h3><div class="products-grid" id="hqd-grid"></div></div>
-            <div id="pods" class="category-section"><h3 class="category-title">⚡ POD-системы</h3><div class="products-grid" id="pods-grid"></div></div>
-            <div id="liquids" class="category-section"><h3 class="category-title">💧 Жидкости</h3><div class="products-grid" id="liquids-grid"></div></div>
-            <div id="accessories" class="category-section"><h3 class="category-title">🛠 Аксессуары</h3><div class="products-grid" id="accessories-grid"></div></div>
-        </div>
-    </section>
-
-    <!-- КОРЗИНА -->
-    <section id="cart" class="cart-section">
-        <div class="container">
-            <h2>🛒 Корзина</h2>
-            <div id="cart-items" class="cart-items">
-                <p class="cart-empty">Корзина пуста</p>
-            </div>
-            <div class="cart-total">
-                <span>Итого:</span>
-                <span id="cart-total-price">0 ₽</span>
-            </div>
-            <div class="cart-buttons">
-                <button class="cart-order-btn" onclick="orderCart()">📦 Заказать всё</button>
-                <button class="cart-clear-btn" onclick="clearCart()">🗑️ Очистить корзину</button>
-            </div>
-        </div>
-    </section>
-
-    <!-- МОДАЛКА -->
-    <div id="product-modal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close" onclick="closeModal()">&times;</span>
-            <div id="modal-body"></div>
-        </div>
-    </div>
-
-    <!-- ПОДВАЛ -->
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h4>⚡ Smurf Shop</h4>
-                <p>Лучший вейп шоп в Лабинском районе</p>
-                <br>
-                <p style="color: #b0c4de; line-height: 1.8; font-size: 0.95rem;">
-                    У нас ты найдёшь не просто товар, а удобство, комфорт и уверенность в каждой покупке.
-                </p>
-                <br>
-                <p style="color: #00d4ff; font-weight: 700; margin-bottom: 15px;">Почему выбирают SMURF SHOP?</p>
-                <ul style="color: #b0c4de; line-height: 2; list-style: none; padding: 0;">
-                    <li>• Индивидуальный подход к каждому клиенту</li>
-                    <li>• Всегда на связи — помогу выбрать то, что подойдёт именно тебе</li>
-                    <li>• Только качественные товары</li>
-                    <li>• Лучшие цены</li>
-                    <li>• Быстрая доставка по городу и району</li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Контакты</h4>
-                <p><strong>Владелец:</strong> Орлов Максим Витальевич</p>
-                <p><strong>VK:</strong> <a href="https://vk.ru/smurfteamss" target="_blank">smurfteamss</a></p>
-                <p><strong>Telegram:</strong> <a href="https://t.me/smurfshop6" target="_blank">@smurfshop6</a></p>
-            </div>
-            <div class="footer-section">
-                <h4>Режим работы</h4>
-                <p>Ежедневно с 10:00 до 22:00</p>
-            </div>
-            <div class="footer-section warning-18">
-                <h4>⚠️ ПРЕДУПРЕЖДЕНИЕ 18+</h4>
-                <p>Продукция содержит никотин. Продажа несовершеннолетним запрещена.</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2024 Smurf Shop. Все права защищены. ⚡</p>
-        </div>
-    </footer>
-
-    <script>
-        // ============================================
-        // 1. АНИМАЦИЯ МОЛНИЙ
-        // ============================================
-
-        function getRandomAngle() {
-            return Math.floor(Math.random() * 20) + 15;
-        }
-
-        function strikeLightning() {
-            var left = document.getElementById('lightning-left-img');
-            var right = document.getElementById('lightning-right-img');
-            var overlay = document.getElementById('flash-overlay');
-            
-            var leftAngle = getRandomAngle();
-            var rightAngle = -getRandomAngle();
-            var leftSkew = (Math.random() * 20 - 10).toFixed(2);
-            var rightSkew = (Math.random() * 20 - 10).toFixed(2);
-            
-            left.style.transform = 'rotate(' + leftAngle + 'deg) skewX(' + leftSkew + 'deg)';
-            right.style.transform = 'rotate(' + rightAngle + 'deg) skewX(' + rightSkew + 'deg) scaleX(-1)';
-            
-            if (Math.random() > 0.3) left.classList.add('active');
-            if (Math.random() > 0.3) right.classList.add('active');
-            overlay.classList.add('active');
-            
-            setTimeout(function() {
-                left.classList.remove('active');
-                right.classList.remove('active');
-                overlay.classList.remove('active');
-                setTimeout(function() {
-                    left.style.transform = '';
-                    right.style.transform = '';
-                }, 100);
-            }, 800);
-        }
-
-        function scheduleLightning() {
-            setTimeout(function() {
-                strikeLightning();
-                if (Math.random() > 0.7) {
-                    setTimeout(strikeLightning, 300 + Math.random() * 400);
-                }
-                scheduleLightning();
-            }, 12000 + Math.random() * 8000);
-        }
-
-        // ============================================
-        // 2. ЗАГРУЗКА ИЗ GOOGLE ТАБЛИЦЫ
-        // ============================================
-        var allProducts = [];
-      var SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT2mhHi-BcGofeeaI-8qAdpjmTm6jyCBgvnvVm2cSsb4fIzeep8TN3Y_b6BBJMXby5_W84-yDYJzZuz/pub?output=csv&gid=0';
-
-       function loadProducts() {
+function loadProducts() {
     console.log('🔄 Загрузка товаров из Google Таблицы...');
     
     fetch(SHEET_URL)
@@ -473,7 +431,7 @@
                     row[headers[k]] = values[k] || '';
                 }
                 
-                // Извлекаем данные (адаптируй названия колонок под свои!)
+                // Извлекаем данные
                 allProducts.push({
                     id: i,
                     category: row['Категория'] || '',
@@ -510,10 +468,11 @@
         })
         .catch(function(error) {
             console.error('❌ Ошибка загрузки:', error);
-            document.querySelector('.section-title').innerHTML += '<br><span style="font-size:1rem;color:#f87171;">Ошибка при загрузке товаров.</span>';
+            document.querySelector('.section-title').innerHTML += '<br><span style="font-size:1rem;color:#f87171;">Ошибка при загрузке товаров. Проверьте подключение к интернету.</span>';
         });
 }
-       function parseFlavors(str) {
+
+function parseFlavors(str) {
     if (!str || str === '-') return [];
     
     var flavors = str.split(/\n|\|/);
@@ -523,10 +482,12 @@
         var flavor = flavors[i].trim();
         if (!flavor) continue;
         
+        // Пропускаем с крестиками
         if (flavor.indexOf('❌') !== -1 || flavor.indexOf('✖') !== -1) {
             continue;
         }
         
+        // Убираем галочки
         flavor = flavor.replace(/[✅✔✓]/g, '').trim();
         
         if (flavor) {
@@ -536,250 +497,230 @@
     
     return result;
 }
-        
-        // Пропускаем пустые
-        if (!flavor || flavor.length === 0) {
-            continue;
-        }
-        
-        // Пропускаем с крестиками
-        if (flavor.indexOf('❌') !== -1 || flavor.indexOf('✖') !== -1 || flavor.indexOf('X ') === 0) {
-            continue;
-        }
-        
-        // Убираем галочки
-        flavor = flavor.replace(/[✅✔✓]/g, '').trim();
-        
-        if (flavor.length > 0) {
-            result.push(flavor);
-        }
+
+function renderCategory(catId, products) {
+    var grid = document.getElementById(catId + '-grid');
+    if (!grid) return;
+    
+    if (products.length === 0) {
+        grid.innerHTML = '<p style="color:#b0c4de; grid-column: 1/-1; text-align:center;">В этой категории пока нет товаров</p>';
+        return;
     }
     
-    return result;
+    grid.innerHTML = products.map(function(p) {
+        var availableFlavors = p.flavors.length;
+        var badge = availableFlavors > 0 ? 'В наличии (' + availableFlavors + ')' : 'Нет в наличии';
+        var badgeClass = availableFlavors > 0 ? '' : 'out';
+        
+        return '<div class="product-card" onclick="openModal(' + p.id + ')">' +
+            '<div class="product-image">' +
+                '<img src="' + p.image + '" alt="' + p.model + '" onerror="this.src=\'https://placehold.co/400x400/0a0e17/00d4ff?text=Нет+фото\'">' +
+                '<div class="stock-badge ' + badgeClass + '">' + badge + '</div>' +
+            '</div>' +
+            '<div class="product-info">' +
+                '<h3 class="product-title">' + p.model + '</h3>' +
+                '<p class="product-preview">' + p.description + '</p>' +
+                '<div class="product-price">' + p.price + ' ₽</div>' +
+                '<span class="view-details">Нажмите для деталей →</span>' +
+                '<button class="add-to-cart-btn" onclick="event.stopPropagation(); addToCart(' + p.id + ')">🛒 В корзину</button>' +
+            '</div>' +
+        '</div>';
+    }).join('');
 }
 
-        function renderCategory(catId, products) {
-            var grid = document.getElementById(catId + '-grid');
-            if (!grid) return;
-            
-            if (products.length === 0) {
-                grid.innerHTML = '<p style="color:#b0c4de; grid-column: 1/-1; text-align:center;">В этой категории пока нет товаров</p>';
-                return;
-            }
-
-            grid.innerHTML = products.map(function(p) {
-                var count = p.flavors.filter(function(f) { return f.available; }).length;
-                var badge = count > 0 ? 'В наличии (' + count + ')' : 'Нет в наличии';
-                var badgeClass = count > 0 ? '' : 'out';
-                
-                return '<div class="product-card" onclick="openModal(' + p.id + ')">' +
-                    '<div class="product-image">' +
-                        '<img src="' + p.image + '" alt="' + p.model + '" onerror="this.src=\'https://placehold.co/400x400/0a0e17/00d4ff?text=Нет+фото\'">' +
-                        '<div class="stock-badge ' + badgeClass + '">' + badge + '</div>' +
-                    '</div>' +
-                    '<div class="product-info">' +
-                        '<h3 class="product-title">' + p.model + '</h3>' +
-                        '<p class="product-preview">' + p.description + '</p>' +
-                        '<div class="product-price">' + p.price + ' ₽</div>' +
-                        '<span class="view-details">Нажмите для деталей →</span>' +
-                        '<button class="add-to-cart-btn" onclick="event.stopPropagation(); addToCart(' + p.id + ')">🛒 В корзину</button>' +
-                    '</div>' +
-                '</div>';
-            }).join('');
-        }
-
-        function openModal(id) {
-            var p = allProducts.find(function(x) { return x.id == id; });
-            if (!p) return;
-            
-            var modal = document.getElementById('product-modal');
-            var body = document.getElementById('modal-body');
-            
-            var specs = '';
-            if (p.nicotine !== '-') specs += '<div class="spec-item"><div class="spec-label">Никотин</div><div class="spec-value">' + p.nicotine + '</div></div>';
-            if (p.puffs !== '-') specs += '<div class="spec-item"><div class="spec-label">Затяжек</div><div class="spec-value">' + p.puffs + '</div></div>';
-            if (p.rechargeable !== '-') specs += '<div class="spec-item"><div class="spec-label">Зарядка</div><div class="spec-value">' + p.rechargeable + '</div></div>';
-            if (p.mah !== '-') specs += '<div class="spec-item"><div class="spec-label">Батарея</div><div class="spec-value">' + p.mah + ' mAh</div></div>';
-
-            var flavors = '';
-            p.flavors.forEach(function(f) {
-                flavors += '<div class="flavor-item ' + (f.available ? 'available' : 'unavailable') + '">' +
-                    '<span class="status-icon">' + (f.available ? '✅' : '❌') + '</span>' +
-                    '<span>' + f.name + '</span>' +
-                '</div>';
-            });
-
-            body.innerHTML = '<div class="modal-header">' +
-                    '<img src="' + p.image + '" alt="' + p.model + '" onerror="this.src=\'https://placehold.co/400x400/0a0e17/00d4ff?text=Нет+фото\'">' +
-                    '<h2>' + p.model + '</h2>' +
-                    '<p style="color:#b0c4de">' + p.description + '</p>' +
-                '</div>' +
-                '<div class="modal-body">' +
-                    (specs ? '<div class="modal-section"><h3>📊 Характеристики</h3><div class="specs-grid">' + specs + '</div></div>' : '') +
-                    (flavors ? '<div class="modal-section"><h3>🎨 Вкусы</h3><div class="flavors-list">' + flavors + '</div></div>' : '') +
-                '</div>' +
-                '<div class="modal-footer">' +
-                    '<div class="modal-price">' + p.price + ' ₽</div>' +
-                    '<div class="modal-buttons">' +
-                        '<button class="modal-add-cart" onclick="addToCart(' + p.id + '); closeModal();">🛒 В корзину</button>' +
-                        '<button class="order-btn" onclick="order(\'' + p.model + '\')">⚡ Заказать</button>' +
-                    '</div>' +
-                '</div>';
-            
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal() {
-            document.getElementById('product-modal').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-        
-        window.onclick = function(e) { if (e.target == document.getElementById('product-modal')) closeModal(); };
-        document.addEventListener('keydown', function(e) { if (e.key == 'Escape') closeModal(); });
-
-        function order(name) {
-            var msg = 'Здравствуйте! Интересует товар: ' + name;
-            window.open('https://t.me/smurfshop6?text=' + encodeURIComponent(msg), '_blank');
-        }
-
-        // ============================================
-        // 3. КОРЗИНА
-        // ============================================
-        var cart = JSON.parse(localStorage.getItem('cart')) || [];
-
-        function saveCart() {
-            localStorage.setItem('cart', JSON.stringify(cart));
-        }
-
-        function updateCart() {
-            var cartItems = document.getElementById('cart-items');
-            var cartTotal = document.getElementById('cart-total-price');
-            var cartCounter = document.getElementById('cart-counter');
-            
-            if (cart.length === 0) {
-                cartItems.innerHTML = '<p class="cart-empty">Корзина пуста</p>';
-                cartTotal.textContent = '0 ₽';
-                if (cartCounter) cartCounter.textContent = '0';
-                return;
-            }
-            
-            var total = 0;
-            cartItems.innerHTML = '';
-            
-            cart.forEach(function(item, index) {
-                total += item.price * item.quantity;
-                cartItems.innerHTML += '<div class="cart-item">' +
-                    '<div class="cart-item-info">' +
-                        '<div class="cart-item-name">' + item.name + '</div>' +
-                        '<div class="cart-item-price">' + item.price + ' ₽</div>' +
-                    '</div>' +
-                    '<div class="cart-item-quantity">' +
-                        '<button onclick="changeQuantity(' + index + ', -1)">-</button>' +
-                        '<span>' + item.quantity + '</span>' +
-                        '<button onclick="changeQuantity(' + index + ', 1)">+</button>' +
-                    '</div>' +
-                    '<div class="cart-item-actions">' +
-                        '<button class="cart-item-order" onclick="orderSingleItem(' + index + ')">📦 Заказать</button>' +
-                        '<button class="cart-item-remove" onclick="removeFromCart(' + index + ')">🗑️ Удалить</button>' +
-                    '</div>' +
-                '</div>';
-            });
-            
-            cartTotal.textContent = total + ' ₽';
-            if (cartCounter) cartCounter.textContent = cart.reduce(function(sum, item) { return sum + item.quantity; }, 0);
-            
-            saveCart();
-        }
-
-        function addToCart(id) {
-            var product = allProducts.find(function(p) { return p.id === id; });
-            if (!product) return;
-            
-            var existingItem = cart.find(function(item) { return item.id === id; });
-            if (existingItem) {
-                existingItem.quantity++;
-            } else {
-                cart.push({
-                    id: product.id,
-                    name: product.model,
-                    price: product.price,
-                    quantity: 1
-                });
-            }
-            
-            saveCart();
-            updateCart();
-            
-            var btn = event.target;
-            btn.textContent = '✓ В корзине';
-            btn.classList.add('added-to-cart');
-            setTimeout(function() {
-                btn.textContent = '🛒 В корзину';
-                btn.classList.remove('added-to-cart');
-            }, 2000);
-        }
-
-        function changeQuantity(index, change) {
-            cart[index].quantity += change;
-            if (cart[index].quantity <= 0) {
-                cart.splice(index, 1);
-            }
-            saveCart();
-            updateCart();
-        }
-
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            saveCart();
-            updateCart();
-        }
-
-        function clearCart() {
-            cart = [];
-            saveCart();
-            updateCart();
-        }
-
-        function orderSingleItem(index) {
-            var item = cart[index];
-            if (!item) return;
-            
-            var total = item.price * item.quantity;
-            var message = '🛒 Заказ товара!\n\n' +
-                '• ' + item.name + ' — ' + item.quantity + ' шт. × ' + item.price + ' ₽\n\n' +
-                '💰 Итого: ' + total + ' ₽';
-            
-            var url = 'https://t.me/smurfshop6?text=' + encodeURIComponent(message);
-            window.open(url, '_blank');
-        }
-
-        function orderCart() {
-            if (cart.length === 0) {
-                alert('Корзина пуста!');
-                return;
-            }
-            
-            var total = cart.reduce(function(sum, item) { return sum + (item.price * item.quantity); }, 0);
-            var message = '🛒 Новый заказ!\n\n';
-            
-            cart.forEach(function(item) {
-                message += '• ' + item.name + ' — ' + item.quantity + ' шт. × ' + item.price + ' ₽\n';
-            });
-            
-            message += '\n💰 Итого: ' + total + ' ₽';
-            
-            var url = 'https://t.me/smurfshop6?text=' + encodeURIComponent(message);
-            window.open(url, '_blank');
-        }
-
-        // Запуск
-        window.addEventListener('load', function() {
-            setTimeout(strikeLightning, 2000);
-            scheduleLightning();
-            loadProducts();
-            updateCart();
+function openModal(id) {
+    var p = allProducts.find(function(x) { return x.id == id; });
+    if (!p) return;
+    
+    var modal = document.getElementById('product-modal');
+    var body = document.getElementById('modal-body');
+    
+    var specs = '';
+    if (p.nicotine !== '-') specs += '<div class="spec-item"><div class="spec-label">Никотин</div><div class="spec-value">' + p.nicotine + '</div></div>';
+    if (p.puffs !== '-') specs += '<div class="spec-item"><div class="spec-label">Затяжек</div><div class="spec-value">' + p.puffs + '</div></div>';
+    if (p.rechargeable !== '-') specs += '<div class="spec-item"><div class="spec-label">Зарядка</div><div class="spec-value">' + p.rechargeable + '</div></div>';
+    if (p.mah !== '-') specs += '<div class="spec-item"><div class="spec-label">Батарея</div><div class="spec-value">' + p.mah + '</div></div>';
+    
+    var flavorsHtml = '';
+    if (p.flavors.length > 0) {
+        p.flavors.forEach(function(f) {
+            flavorsHtml += '<div class="flavor-item available">' +
+                '<span>✅</span>' +
+                '<span>' + f + '</span>' +
+            '</div>';
         });
-    </script>
+    } else {
+        flavorsHtml = '<div class="flavor-item unavailable"><span>Нет в наличии</span></div>';
+    }
+    
+    body.innerHTML = '<div class="modal-header">' +
+        '<img src="' + p.image + '" alt="' + p.model + '" onerror="this.src=\'https://placehold.co/400x400/0a0e17/00d4ff?text=Нет+фото\'">' +
+        '<h2>' + p.model + '</h2>' +
+        '<p style="color:#b0c4de">' + p.description + '</p>' +
+    '</div>' +
+    '<div class="modal-body">' +
+        (specs ? '<div class="modal-section"><h3>📊 Характеристики</h3><div class="specs-grid">' + specs + '</div></div>' : '') +
+        '<div class="modal-section"><h3>🎨 Вкусы</h3><div class="flavors-list">' + flavorsHtml + '</div></div>' +
+    '</div>' +
+    '<div class="modal-footer">' +
+        '<div class="modal-price">' + p.price + ' ₽</div>' +
+        '<div class="modal-buttons">' +
+            '<button class="modal-add-cart" onclick="addToCart(' + p.id + '); closeModal();">🛒 В корзину</button>' +
+            '<button class="order-btn" onclick="order(\'' + p.model + '\'); closeModal();">⚡ Заказать</button>' +
+        '</div>' +
+    '</div>';
+    
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    document.getElementById('product-modal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+window.onclick = function(e) { if (e.target == document.getElementById('product-modal')) closeModal(); };
+document.addEventListener('keydown', function(e) { if (e.key == 'Escape') closeModal(); });
+
+function order(name) {
+    var msg = 'Здравствуйте! Интересует товар: ' + name;
+    window.open('https://t.me/smurfshop6?text=' + encodeURIComponent(msg), '_blank');
+}
+
+// ============================================
+// 3. КОРЗИНА
+// ============================================
+var cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+function saveCart() {
+    localStorage.setItem('cart', JSON.stringify(cart));
+}
+
+function updateCart() {
+    var cartItems = document.getElementById('cart-items');
+    var cartTotal = document.getElementById('cart-total-price');
+    
+    if (cart.length === 0) {
+        cartItems.innerHTML = '<p class="cart-empty">Корзина пуста</p>';
+        cartTotal.textContent = '0 ₽';
+        return;
+    }
+    
+    var total = 0;
+    cartItems.innerHTML = '';
+    
+    cart.forEach(function(item, index) {
+        total += item.price * item.quantity;
+        cartItems.innerHTML += '<div class="cart-item">' +
+            '<div class="cart-item-info">' +
+                '<div class="cart-item-name">' + item.name + '</div>' +
+                '<div class="cart-item-price">' + item.price + ' ₽</div>' +
+            '</div>' +
+            '<div class="cart-item-quantity">' +
+                '<button onclick="changeQuantity(' + index + ', -1)">-</button>' +
+                '<span>' + item.quantity + '</span>' +
+                '<button onclick="changeQuantity(' + index + ', 1)">+</button>' +
+            '</div>' +
+            '<div class="cart-item-actions">' +
+                '<button class="cart-item-order" onclick="orderSingleItem(' + index + ')">📦 Заказать</button>' +
+                '<button class="cart-item-remove" onclick="removeFromCart(' + index + ')">🗑️ Удалить</button>' +
+            '</div>' +
+        '</div>';
+    });
+    
+    cartTotal.textContent = total + ' ₽';
+    saveCart();
+}
+
+function addToCart(id) {
+    var product = allProducts.find(function(p) { return p.id === id; });
+    if (!product) return;
+    
+    var existingItem = cart.find(function(item) { return item.id === id; });
+    
+    if (existingItem) {
+        existingItem.quantity++;
+    } else {
+        cart.push({
+            id: product.id,
+            name: product.model,
+            price: product.price,
+            quantity: 1
+        });
+    }
+    
+    saveCart();
+    updateCart();
+    
+    var btn = event.target;
+    btn.textContent = '✓ В корзине';
+    btn.classList.add('added-to-cart');
+    setTimeout(function() {
+        btn.textContent = '🛒 В корзину';
+        btn.classList.remove('added-to-cart');
+    }, 2000);
+}
+
+function changeQuantity(index, change) {
+    cart[index].quantity += change;
+    if (cart[index].quantity <= 0) {
+        cart.splice(index, 1);
+    }
+    saveCart();
+    updateCart();
+}
+
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    saveCart();
+    updateCart();
+}
+
+function clearCart() {
+    cart = [];
+    saveCart();
+    updateCart();
+}
+
+function orderSingleItem(index) {
+    var item = cart[index];
+    if (!item) return;
+    
+    var total = item.price * item.quantity;
+    var message = '🛒 Заказ товара!\n' +
+        '• ' + item.name + ' — ' + item.quantity + ' шт. × ' + item.price + ' ₽\n' +
+        '💰 Итого: ' + total + ' ₽';
+    
+    var url = 'https://t.me/smurfshop6?text=' + encodeURIComponent(message);
+    window.open(url, '_blank');
+}
+
+function orderCart() {
+    if (cart.length === 0) {
+        alert('Корзина пуста!');
+        return;
+    }
+    
+    var total = cart.reduce(function(sum, item) { return sum + (item.price * item.quantity); }, 0);
+    var message = '🛒 Новый заказ!\n';
+    
+    cart.forEach(function(item) {
+        message += '• ' + item.name + ' — ' + item.quantity + ' шт. × ' + item.price + ' ₽\n';
+    });
+    
+    message += '\n💰 Итого: ' + total + ' ₽';
+    
+    var url = 'https://t.me/smurfshop6?text=' + encodeURIComponent(message);
+    window.open(url, '_blank');
+}
+
+// Запуск
+window.addEventListener('load', function() {
+    setTimeout(strikeLightning, 2000);
+    scheduleLightning();
+    loadProducts();
+    updateCart();
+});
+</script>
 </body>
 </html>
