@@ -462,10 +462,11 @@
     }
     return valStr + 'mAh';
 }(),
-                            flavors: parseFlavors(row.c[10]?.v || ''),
-                            inStock: function() {
-    return this.flavors && this.flavors.length > 0;
-}
+                          flavors: parseFlavors(
+    (row.c[10]?.v || '') + '\n' + 
+    (row.c[11]?.v || '') + '\n' + 
+    (row.c[12]?.v || '')
+)
                         };
                     });
 
@@ -482,16 +483,29 @@
                 });
         }
 
-        function parseFlavors(str) {
-    if (!str || str === '-' || str === '') {
-        return [];
-    }
+       function parseFlavors(str) {
+    if (!str || str === '-') return [];
     
     var flavors = str.split(/\n|\|/);
     var result = [];
     
     for (var i = 0; i < flavors.length; i++) {
         var flavor = flavors[i].trim();
+        if (!flavor) continue;
+        
+        if (flavor.indexOf('❌') !== -1 || flavor.indexOf('✖') !== -1) {
+            continue;
+        }
+        
+        flavor = flavor.replace(/[✅✔✓]/g, '').trim();
+        
+        if (flavor) {
+            result.push(flavor);
+        }
+    }
+    
+    return result;
+}
         
         // Пропускаем пустые
         if (!flavor || flavor.length === 0) {
