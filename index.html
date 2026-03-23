@@ -462,7 +462,7 @@
     }
     return valStr + 'mAh';
 }(),
-                            flavors: parseFlavors(row.c[10]?.v || '')
+                            flavors: parseFlavors(row.c[10]?.v || ''),
                             inStock: function() {
     return this.flavors && this.flavors.length > 0;
 }
