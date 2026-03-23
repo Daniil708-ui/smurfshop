@@ -143,7 +143,7 @@ body { font-family: 'Arial', sans-serif; background: #0a0e17; color: white; over
 
 @keyframes modalSlide { from { opacity: 0; transform: translateY(-50px); } to { opacity: 1; transform: translateY(0); } }
 
-/* 🔴 КРЕСТИК ЗАКРЫТИЯ - ЯРКИЙ */
+/* 🔴 КРЕСТИК ЗАКРЫТИЯ - ЯРКИЙ КРАСНЫЙ */
 .modal-close { 
     position: absolute; 
     right: 20px; 
@@ -439,11 +439,15 @@ function loadProducts() {
                         if (!val) return '-';
                         return val.toString().toLowerCase().includes('mah') ? val : val + 'mAh';
                     })(),
-                    flavors: parseFlavors(
-                        (row['Вкусы'] || '') + '\n' +
-                        (row['вкусы2'] || '') + '\n' +
-                        (row['вкусы3'] || '')
-                    )
+                    flavors: (function() {
+                        var f1 = parseFlavors(row['Вкусы'] || '');
+                        var f2 = parseFlavors(row['вкусы2'] || '');
+                        var f3 = parseFlavors(row['вкусы3'] || '');
+                        return {
+                            available: f1.available.concat(f2.available).concat(f3.available),
+                            unavailable: f1.unavailable.concat(f2.unavailable).concat(f3.unavailable)
+                        };
+                    })()
                 });
             }
             
@@ -461,17 +465,22 @@ function loadProducts() {
 }
 
 // ============================================
-// 3. ФУНКЦИЯ PARSE FLAVORS (ОДНА, БЕЗ ДУБЛЕЙ)
+// 3. ФУНКЦИЯ PARSE FLAVORS (С РАЗДЕЛЕНИЕМ НА ДОСТУПНЫЕ/НЕДОСТУПНЫЕ)
 // ============================================
 function parseFlavors(str) {
-    if (!str || str === '-') return [];
-    var flavors = str.split(/\n|\|/), result = [];
+    if (!str || str === '-') return { available: [], unavailable: [] };
+    var flavors = str.split(/\n|\|/);
+    var result = { available: [], unavailable: [] };
     for (var i = 0; i < flavors.length; i++) {
         var flavor = flavors[i].trim();
         if (!flavor) continue;
-        if (flavor.indexOf('❌') !== -1 || flavor.indexOf('✖') !== -1) continue;
-        flavor = flavor.replace(/[✅✔✓]/g, '').trim();
-        if (flavor) result.push(flavor);
+        if (flavor.indexOf('❌') !== -1 || flavor.indexOf('✖') !== -1) {
+            flavor = flavor.replace(/[❌✖]/g, '').trim();
+            if (flavor) result.unavailable.push(flavor);
+        } else {
+            flavor = flavor.replace(/[✅✔✓]/g, '').trim();
+            if (flavor) result.available.push(flavor);
+        }
     }
     return result;
 }
@@ -487,9 +496,15 @@ function renderCategory(catId, products) {
         return;
     }
     grid.innerHTML = products.map(function(p) {
-        var count = p.flavors.length;
-        var badge = count > 0 ? 'В наличии (' + count + ')' : 'Нет в наличии';
-        var badgeClass = count > 0 ? '' : 'out';
+        var count = p.flavors.available ? p.flavors.available.length : 0;
+        var badge, badgeClass;
+        if (count > 0) {
+            badge = 'В наличии (' + count + ')';
+            badgeClass = '';
+        } else {
+            badge = 'Нет в наличии ❌';
+            badgeClass = 'out';
+        }
         return '<div class="product-card" onclick="openModal(' + p.id + ')">' +
             '<div class="product-image">' +
                 '<img src="' + p.image + '" alt="' + p.model + '" onerror="this.src=\'https://placehold.co/400x400/0a0e17/00d4ff?text=Нет+фото\'">' +
@@ -522,9 +537,20 @@ function openModal(id) {
     if (p.rechargeable !== '-') specs += '<div class="spec-item"><div class="spec-label">Зарядка</div><div class="spec-value">' + p.rechargeable + '</div></div>';
     if (p.mah !== '-') specs += '<div class="spec-item"><div class="spec-label">Батарея</div><div class="spec-value">' + p.mah + '</div></div>';
     
-    var flavorsHtml = p.flavors.length > 0 
-        ? p.flavors.map(function(f) { return '<div class="flavor-item available"><span>✅</span><span>' + f + '</span></div>'; }).join('')
-        : '<div class="flavor-item unavailable"><span>Нет в наличии</span></div>';
+    var flavorsHtml = '';
+    if (p.flavors.available && p.flavors.available.length > 0) {
+        p.flavors.available.forEach(function(f) {
+            flavorsHtml += '<div class="flavor-item available"><span>✅</span><span>' + f + '</span></div>';
+        });
+    }
+    if (p.flavors.unavailable && p.flavors.unavailable.length > 0) {
+        p.flavors.unavailable.forEach(function(f) {
+            flavorsHtml += '<div class="flavor-item unavailable"><span>❌</span><span>' + f + '</span></div>';
+        });
+    }
+    if (!flavorsHtml) {
+        flavorsHtml = '<div class="flavor-item unavailable"><span>Нет вкусов</span></div>';
+    }
     
     body.innerHTML = '<div class="modal-header">' +
         '<img src="' + p.image + '" alt="' + p.model + '" onerror="this.src=\'https://placehold.co/400x400/0a0e17/00d4ff?text=Нет+фото\'">' +
