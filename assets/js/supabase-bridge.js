@@ -3,7 +3,10 @@
 var SUPABASE_URL = 'https://dyclzexjwkcacfymtqop.supabase.co';
 var SUPABASE_ANON_KEY = 'sb_publishable_mGSBf687TIxhJK9YDexqig_bTdOymiT';
 
-var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+var supabaseClient = null;
+if (typeof supabase !== 'undefined') {
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
 
 var PLACEHOLDER_IMAGE = 'https://placehold.co/400x400/0a0e17/00d4ff?text=Нет+фото';
 
