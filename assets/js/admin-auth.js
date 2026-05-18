@@ -4,9 +4,6 @@
     var STORAGE_ACCESS = 'smurf_admin_access';
     var STORAGE_LEGACY = 'isAdmin';
 
-    // Только для текущей загрузки страницы (после входа по ключу)
-    var adminUiActiveThisLoad = false;
-
     function getKeyFromUrl() {
         var params = new URLSearchParams(window.location.search);
         var key = params.get('key');
@@ -26,6 +23,10 @@
     function revokeAccess() {
         localStorage.removeItem(STORAGE_ACCESS);
         localStorage.removeItem(STORAGE_LEGACY);
+    }
+
+    function hasStoredAccess() {
+        return localStorage.getItem(STORAGE_ACCESS) === 'true';
     }
 
     function removeAdminButton() {
@@ -121,43 +122,43 @@
         window.history.replaceState({}, document.title, cleanUrl);
     }
 
-    function syncAdminUi() {
-        var key = getKeyFromUrl();
+    // ГЛАВНАЯ ФУНКЦИЯ ПРОВЕРКИ ДОСТУПА
+    function checkAdminAccess() {
+        var keyFromURL = getKeyFromUrl();
 
-        if (key && key !== SECRET_KEY) {
-            adminUiActiveThisLoad = false;
+        if (keyFromURL && keyFromURL !== SECRET_KEY) {
             revokeAccess();
             removeAdminButton();
             console.log('❌ Доступ запрещён: неверный ключ');
             return;
         }
 
-        if (key === SECRET_KEY) {
+        if (keyFromURL === SECRET_KEY) {
             grantAccess();
-            adminUiActiveThisLoad = true;
             createAdminButton();
-            console.log('✅ Доступ разрешён: ключ в URL');
+            console.log('✅ Ключ верный! Доступ разрешён.');
             setTimeout(cleanKeyFromUrl, 150);
             return;
         }
 
-        if (adminUiActiveThisLoad) {
+        if (hasStoredAccess()) {
             createAdminButton();
+            console.log('✅ Сохранённый доступ. Кнопка показана.');
             return;
         }
 
         removeAdminButton();
+        console.log('❌ Доступ запрещён. Кнопка скрыта.');
     }
 
-    function init() {
-        syncAdminUi();
-    }
+    document.addEventListener('DOMContentLoaded', checkAdminAccess);
+    window.addEventListener('load', checkAdminAccess);
 
-    document.addEventListener('DOMContentLoaded', init);
-    window.addEventListener('load', init);
+    if (document.readyState !== 'loading') {
+        checkAdminAccess();
+    }
 
     window.logoutAdmin = function () {
-        adminUiActiveThisLoad = false;
         revokeAccess();
         removeAdminButton();
         window.location.href = '/';
