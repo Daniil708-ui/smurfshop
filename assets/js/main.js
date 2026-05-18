@@ -99,7 +99,120 @@ function parseFlavors(str) {
 }
 
 // ============================================
-// 4. РЕНДЕР КАТЕГОРИЙ
+// 4. ХАРАКТЕРИСТИКИ (превью на карточке и модалка)
+// ============================================
+function escapeHtml(text) {
+    if (!text) return '';
+    return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function normalizeSpecsArray(specs) {
+    if (!Array.isArray(specs)) {
+        return [];
+    }
+
+    return specs.map(function (item) {
+        return {
+            label: String(item.label || item.name || '').trim(),
+            value: String(item.value || '').trim()
+        };
+    }).filter(function (item) {
+        return item.label || item.value;
+    });
+}
+
+function parseSpecsInput(specsData) {
+    if (!specsData) {
+        return [];
+    }
+
+    if (Array.isArray(specsData)) {
+        return normalizeSpecsArray(specsData);
+    }
+
+    if (typeof specsData === 'string') {
+        if (typeof parseSpecsArray === 'function') {
+            return parseSpecsArray(specsData);
+        }
+
+        try {
+            var parsed = JSON.parse(specsData);
+            if (Array.isArray(parsed)) {
+                return normalizeSpecsArray(parsed);
+            }
+        } catch (e) {
+            return [];
+        }
+    }
+
+    return [];
+}
+
+function renderSpecs(specsData, legacyProduct) {
+    var specs = parseSpecsInput(specsData);
+
+    if (specs.length > 0) {
+        return specs.map(function (spec) {
+            if (!spec.label && !spec.value) {
+                return '';
+            }
+            return '<div class="spec-item"><span class="spec-label">' + escapeHtml(spec.label) +
+                ':</span> <span class="spec-value">' + escapeHtml(spec.value) + '</span></div>';
+        }).join('');
+    }
+
+    var legacy = legacyProduct || {};
+    var html = '';
+
+    if (legacy.nicotine && legacy.nicotine !== '-') {
+        html += '<div class="spec-item"><span class="spec-label">Никотин:</span> <span class="spec-value">' +
+            escapeHtml(legacy.nicotine) + '</span></div>';
+    }
+    if (legacy.puffs && legacy.puffs !== '-') {
+        html += '<div class="spec-item"><span class="spec-label">Затяжки:</span> <span class="spec-value">' +
+            escapeHtml(legacy.puffs) + '</span></div>';
+    }
+    if (legacy.rechargeable && legacy.rechargeable !== '-') {
+        html += '<div class="spec-item"><span class="spec-label">Зарядка:</span> <span class="spec-value">' +
+            escapeHtml(legacy.rechargeable) + '</span></div>';
+    }
+    if (legacy.mah && legacy.mah !== '-') {
+        html += '<div class="spec-item"><span class="spec-label">Батарея:</span> <span class="spec-value">' +
+            escapeHtml(legacy.mah) + '</span></div>';
+    }
+
+    return html;
+}
+
+function renderSpecsPreview(specsData, legacyProduct, maxVisible) {
+    var specs = parseSpecsInput(specsData);
+    var limit = maxVisible || 3;
+
+    if (!specs.length) {
+        return '';
+    }
+
+    var html = specs.slice(0, limit).map(function (spec) {
+        if (!spec.label && !spec.value) {
+            return '';
+        }
+        return '<p class="product-preview"><strong>' + escapeHtml(spec.label) + ':</strong> ' +
+            escapeHtml(spec.value) + '</p>';
+    }).join('');
+
+    if (specs.length > limit) {
+        html += '<p class="product-preview specs-more">…</p>';
+    }
+
+    return html;
+}
+
+// ============================================
+// 5. РЕНДЕР КАТЕГОРИЙ
 // ============================================
 function renderCategory(catId, products) {
     var grid = document.getElementById(catId + '-grid');
@@ -119,6 +232,7 @@ function renderCategory(catId, products) {
             badgeClass = 'out';
         }
         var idAttr = quoteId(p.id);
+        var specsPreview = renderSpecsPreview(p.specsRaw || p.specsList, p, 3);
         return '<div class="product-card" onclick="openModal(' + idAttr + ')">' +
             '<div class="product-image">' +
                 '<img src="' + p.image + '" alt="' + p.model + '" onerror="this.src=\'https://placehold.co/400x400/0a0e17/00d4ff?text=Нет+фото\'">' +
@@ -127,6 +241,7 @@ function renderCategory(catId, products) {
             '<div class="product-info">' +
                 '<h3 class="product-title">' + p.model + '</h3>' +
                 '<p class="product-preview">' + p.description + '</p>' +
+                (specsPreview ? '<div class="product-specs-preview">' + specsPreview + '</div>' : '') +
                 '<div class="product-price">' + p.price + ' ₽</div>' +
                 '<span class="view-details">Нажмите для деталей →</span>' +
                 '<button class="add-to-cart-btn" onclick="event.stopPropagation(); addToCart(' + idAttr + ')">🛒 В корзину</button>' +
@@ -146,11 +261,7 @@ function openModal(id) {
     var body = document.getElementById('modal-body');
     var idAttr = quoteId(p.id);
 
-    var specs = '';
-    if (p.nicotine !== '-') specs += '<div class="spec-item"><div class="spec-label">Никотин</div><div class="spec-value">' + p.nicotine + '</div></div>';
-    if (p.puffs !== '-') specs += '<div class="spec-item"><div class="spec-label">Затяжек</div><div class="spec-value">' + p.puffs + '</div></div>';
-    if (p.rechargeable !== '-') specs += '<div class="spec-item"><div class="spec-label">Зарядка</div><div class="spec-value">' + p.rechargeable + '</div></div>';
-    if (p.mah !== '-') specs += '<div class="spec-item"><div class="spec-label">Батарея</div><div class="spec-value">' + p.mah + '</div></div>';
+    var specs = renderSpecs(p.specsRaw || p.specsList, p);
 
     var flavorsHtml = '';
     if (p.flavors.available && p.flavors.available.length > 0) {

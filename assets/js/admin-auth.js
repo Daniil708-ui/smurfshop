@@ -41,6 +41,21 @@
         if (legacy) legacy.remove();
     }
 
+    function getDesktopButtonRight() {
+        var contacts = document.querySelector('.header .contacts');
+        if (!contacts) {
+            return '20px';
+        }
+
+        var rect = contacts.getBoundingClientRect();
+        if (!rect.width) {
+            return '20px';
+        }
+
+        var gap = 12;
+        return Math.ceil(window.innerWidth - rect.left + gap) + 'px';
+    }
+
     function applyButtonResponsive(btn) {
         if (window.innerWidth < 768) {
             btn.style.width = '40px';
@@ -53,7 +68,7 @@
             btn.style.height = '50px';
             btn.style.fontSize = '24px';
             btn.style.top = '20px';
-            btn.style.right = '20px';
+            btn.style.right = getDesktopButtonRight();
         }
     }
 

@@ -27,7 +27,51 @@ async function getProducts() {
 }
 
 /**
- * Парсит характеристики: JSON [{"label":"Никотин","value":"5%"}] или legacy "Никотин: 5%, ..."
+ * Парсит характеристики в массив [{ label, value }].
+ * JSON [{"label":"Никотин","value":"5%"}] или legacy "Никотин: 5%, Затяжек: 5000"
+ */
+function parseSpecsArray(specsStr) {
+    if (!specsStr || !String(specsStr).trim()) {
+        return [];
+    }
+
+    var str = String(specsStr).trim();
+
+    if (str.charAt(0) === '[') {
+        try {
+            var parsed = JSON.parse(str);
+            if (Array.isArray(parsed)) {
+                return parsed.map(function (item) {
+                    return {
+                        label: String(item.label || item.name || '').trim(),
+                        value: String(item.value || '').trim()
+                    };
+                }).filter(function (item) {
+                    return item.label || item.value;
+                });
+            }
+        } catch (e) { /* legacy below */ }
+    }
+
+    var legacy = [];
+    str.split(',').forEach(function (part) {
+        var piece = part.trim();
+        if (!piece) return;
+
+        var colonIdx = piece.indexOf(':');
+        if (colonIdx === -1) return;
+
+        legacy.push({
+            label: piece.slice(0, colonIdx).trim(),
+            value: piece.slice(colonIdx + 1).trim()
+        });
+    });
+
+    return legacy;
+}
+
+/**
+ * @deprecated Используйте specsList из mapDataToCardFormat. Оставлено для совместимости.
  */
 function parseSpecs(specsStr) {
     var result = {
@@ -37,14 +81,11 @@ function parseSpecs(specsStr) {
         mah: '-'
     };
 
-    if (!specsStr || !String(specsStr).trim()) {
-        return result;
-    }
-
-    var str = String(specsStr).trim();
-
-    function applyLabelValue(key, value) {
+    parseSpecsArray(specsStr).forEach(function (item) {
+        var key = (item.label || '').toLowerCase();
+        var value = item.value || '';
         if (!value) return;
+
         if (key.indexOf('никотин') !== -1) {
             result.nicotine = value;
         } else if (key.indexOf('затяж') !== -1) {
@@ -54,34 +95,7 @@ function parseSpecs(specsStr) {
         } else if (key.indexOf('батар') !== -1) {
             result.mah = value.toLowerCase().indexOf('mah') !== -1 ? value : value + 'mAh';
         }
-    }
-
-    if (str.charAt(0) === '[') {
-        try {
-            var jsonSpecs = JSON.parse(str);
-            if (Array.isArray(jsonSpecs)) {
-                jsonSpecs.forEach(function (item) {
-                    var label = String(item.label || item.name || '').trim().toLowerCase();
-                    var value = String(item.value || '').trim();
-                    applyLabelValue(label, value);
-                });
-                return result;
-            }
-        } catch (e) { /* legacy */ }
-    }
-
-    var parts = str.split(',');
-    for (var i = 0; i < parts.length; i++) {
-        var part = parts[i].trim();
-        if (!part) continue;
-
-        var colonIdx = part.indexOf(':');
-        if (colonIdx === -1) continue;
-
-        var key = part.slice(0, colonIdx).trim().toLowerCase();
-        var val = part.slice(colonIdx + 1).trim();
-        applyLabelValue(key, val);
-    }
+    });
 
     return result;
 }
@@ -148,6 +162,7 @@ function parseFlavorsFromString(str) {
  */
 function mapDataToCardFormat(products) {
     return products.map(function(p) {
+        var specsList = parseSpecsArray(p.specs || '');
         var specs = parseSpecs(p.specs || '');
 
         return {
@@ -157,6 +172,8 @@ function mapDataToCardFormat(products) {
             price: parseFloat(p.price) || 0,
             image: p.image_url || PLACEHOLDER_IMAGE,
             description: p.description || '',
+            specsRaw: p.specs || '',
+            specsList: specsList,
             nicotine: specs.nicotine,
             puffs: specs.puffs,
             rechargeable: specs.rechargeable,
