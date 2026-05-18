@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smurf Shop — Админ</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        /* Фон как на главной */
+        .clouds-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -3; overflow: hidden; }
+        .cloud-layer-1 {
+            position: absolute; width: 110%; height: 110%; top: -5%; left: -5%;
+            background: url('assets/images/background/clouds.png') no-repeat center center fixed;
+            background-size: cover;
+            animation: breathe 15s ease-in-out infinite;
+        }
+        .cloud-layer-2, .cloud-layer-3, .cloud-layer-4 { display: none; }
+        @keyframes breathe {
+            0%, 100% { transform: scale(1) translateY(0); opacity: 0.88; }
+            50% { transform: scale(1.08) translateY(0); opacity: 0.96; }
+        }
+        .clouds-container::before {
+            content: '';
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+            animation: glowPulse 12s ease-in-out infinite;
+        }
+        @keyframes glowPulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.7; } }
+        @media (max-width: 768px) {
+            .cloud-layer-1 {
+                background: url('assets/images/background/clouds.png') no-repeat center center fixed !important;
+                background-size: cover !important;
+                opacity: 1 !important;
+            }
+        }
+
+        .adm-page {
+            min-height: 100vh;
+            background: #0a0e17;
+            color: #e6edf3;
+            font-family: Arial, sans-serif;
+            padding: 24px;
+            overflow-x: hidden;
+            position: relative;
+            z-index: 1;
+        }
+        .adm-wrap { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+        .adm-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+        .adm-title { font-size: 1.75rem; color: #00d4ff; margin: 0; }
+        .adm-link {
+            color: #00d4ff;
+            text-decoration: none;
+            border: 1px solid #00d4ff;
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+        .adm-link:hover { background: rgba(0, 212, 255, 0.15); }
+        .adm-panel {
+            background: rgba(22, 27, 34, 0.92);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 212, 255, 0.25);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+        .adm-panel h2 { margin: 0 0 20px; font-size: 1.25rem; color: #58a6ff; }
+        .adm-form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+        .adm-field { display: flex; flex-direction: column; gap: 6px; }
+        .adm-field--full { grid-column: 1 / -1; }
+        .adm-field label { font-size: 0.9rem; color: #8b949e; }
+        .adm-field input,
+        .adm-field textarea,
+        .adm-field select {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            color: #e6edf3;
+            padding: 10px 12px;
+            font-size: 1rem;
+        }
+        .adm-field textarea { min-height: 88px; resize: vertical; }
+        .adm-check { flex-direction: row; align-items: center; gap: 10px; }
+        .adm-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .adm-btn {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+        .adm-btn--primary { background: #00d4ff; color: #0a0e17; }
+        .adm-btn--primary:hover { background: #00b8d9; }
+        .adm-btn--ghost {
+            background: transparent;
+            color: #00d4ff;
+            border: 1px solid #00d4ff;
+        }
+        .adm-btn--danger { background: #da3633; color: #fff; }
+        .adm-message { margin-top: 12px; font-size: 0.95rem; min-height: 1.2em; }
+        .adm-message--ok { color: #3fb950; }
+        .adm-message--error { color: #f85149; }
+        .adm-empty { color: #8b949e; text-align: center; grid-column: 1 / -1; padding: 24px; }
+
+        /* Карточки каталога — те же классы, что на витрине */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        .product-card {
+            background: rgba(13, 27, 42, 0.9);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            transition: 0.3s;
+        }
+        .product-card:hover {
+            transform: translateY(-6px);
+            border-color: #00d4ff;
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.35);
+        }
+        .product-image {
+            height: 220px;
+            background: rgba(10, 14, 23, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 2px solid rgba(0, 212, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .product-image img { width: 100%; height: 100%; object-fit: cover; }
+        .stock-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4ade80;
+            color: #0a0e17;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+        .stock-badge.out { background: #f87171; color: white; }
+        .product-info { padding: 20px; }
+        .product-title { font-size: 1.4rem; margin-bottom: 8px; color: white; font-weight: 700; }
+        .product-price { font-size: 1.8rem; font-weight: 900; color: #00d4ff; margin: 10px 0 12px; }
+        .product-preview { color: #b0c4de; font-size: 0.9rem; margin-bottom: 8px; line-height: 1.4; }
+        .adm-product-category {
+            display: inline-block;
+            font-size: 0.8rem;
+            color: #00d4ff;
+            background: rgba(0, 212, 255, 0.12);
+            border: 1px solid rgba(0, 212, 255, 0.35);
+            border-radius: 12px;
+            padding: 4px 10px;
+            margin-bottom: 8px;
+        }
+        .adm-card-specs { margin-bottom: 12px; }
+        .adm-card-specs .product-preview { margin-bottom: 4px; }
+        .adm-card-flavors {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 16px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        .flavor-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            font-size: 0.85rem;
+            color: #e6edf3;
+        }
+        .flavor-item.available { border-color: rgba(74, 222, 128, 0.5); }
+        .flavor-item.unavailable { border-color: rgba(248, 113, 113, 0.5); opacity: 0.75; }
+        .adm-card-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .adm-card-actions .adm-btn { flex: 1; min-width: 120px; padding: 10px 14px; font-size: 0.9rem; }
+        .adm-hint { font-size: 0.8rem; color: #6e7681; margin-top: 4px; }
+        .adm-dynamic-block { display: flex; flex-direction: column; gap: 10px; }
+        .adm-dynamic-list { display: flex; flex-direction: column; gap: 10px; }
+        .adm-dynamic-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .adm-dynamic-row input[type="text"] {
+            flex: 1;
+            min-width: 140px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            color: #e6edf3;
+            padding: 10px 12px;
+            font-size: 1rem;
+        }
+        .adm-dynamic-row .adm-spec-label { max-width: 200px; }
+        .adm-flavor-check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #8b949e;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            user-select: none;
+        }
+        .adm-flavor-check input { width: 18px; height: 18px; accent-color: #00d4ff; cursor: pointer; }
+        .adm-btn--add {
+            align-self: flex-start;
+            background: #00d4ff;
+            color: #0a0e17;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .adm-btn--add:hover { background: #00b8d9; }
+        .adm-btn--remove {
+            flex-shrink: 0;
+            background: #da3633;
+            color: #fff;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .adm-btn--remove:hover { background: #b62324; }
+    </style>
+</head>
+<body class="adm-page">
+    <div class="clouds-container"><div class="cloud-layer-1"></div></div>
+
+    <div class="adm-wrap">
+        <header class="adm-header">
+            <h1 class="adm-title">⚙ Админ-панель Smurf Shop</h1>
+            <a href="index.html" class="adm-link">← На сайт</a>
+        </header>
+
+        <section class="adm-panel">
+            <h2 id="adm-form-title">Добавить товар</h2>
+            <form id="adm-product-form">
+                <div class="adm-form-grid">
+                    <div class="adm-field">
+                        <label for="adm-name">Название</label>
+                        <input type="text" id="adm-name" required>
+                    </div>
+                    <div class="adm-field">
+                        <label for="adm-price">Цена (₽)</label>
+                        <input type="number" id="adm-price" min="0" required>
+                    </div>
+                    <div class="adm-field">
+                        <label for="adm-category">Категория</label>
+                        <select id="adm-category" required>
+                            <option value="HQD">HQD</option>
+                            <option value="POD">POD</option>
+                            <option value="Жидкости">Жидкости</option>
+                            <option value="Снюс">Снюс</option>
+                        </select>
+                    </div>
+                    <div class="adm-field adm-field--full">
+                        <label for="adm-description">Описание</label>
+                        <textarea id="adm-description"></textarea>
+                    </div>
+                    <div class="adm-field adm-field--full">
+                        <label>Характеристики</label>
+                        <div class="adm-dynamic-block">
+                            <div id="specs-list" class="adm-dynamic-list"></div>
+                            <button type="button" class="adm-btn--add" id="adm-add-spec">+ Добавить характеристику</button>
+                        </div>
+                    </div>
+                    <div class="adm-field adm-field--full">
+                        <label>Вкусы</label>
+                        <div class="adm-dynamic-block">
+                            <div id="flavors-list" class="adm-dynamic-list"></div>
+                            <button type="button" class="adm-btn--add" id="adm-add-flavor">+ Добавить вкус</button>
+                        </div>
+                    </div>
+                    <div class="adm-field">
+                        <label for="adm-image">Фото</label>
+                        <input type="file" id="adm-image" accept="image/*">
+                    </div>
+                    <div class="adm-field adm-check">
+                        <input type="checkbox" id="adm-in-stock" checked>
+                        <label for="adm-in-stock">В наличии</label>
+                    </div>
+                </div>
+                <div class="adm-actions">
+                    <button type="submit" class="adm-btn adm-btn--primary" id="adm-submit-btn">Добавить товар</button>
+                    <button type="button" class="adm-btn adm-btn--ghost" id="adm-cancel-edit" style="display:none;">Отмена</button>
+                </div>
+                <p id="adm-message" class="adm-message"></p>
+            </form>
+        </section>
+
+        <section class="adm-panel">
+            <h2>Товары в каталоге</h2>
+            <div id="adm-products-list" class="products-grid">
+                <p class="adm-empty">Загрузка...</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        if (localStorage.getItem('isAdmin') !== 'true') {
+            window.location.replace('/');
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-bridge.js"></script>
+    <script src="assets/js/admin-manager.js"></script>
+</body>
+</html>
