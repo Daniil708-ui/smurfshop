@@ -3,6 +3,8 @@
     var SECRET_KEY = 'smurfk8R2mQ9xLvN4pW7zT1hJ6cY3bA0eF5';
     var STORAGE_ACCESS = 'smurf_admin_access';
     var STORAGE_LEGACY = 'isAdmin';
+    // Кнопка на главной — только в текущей вкладке после входа по ключу
+    var SESSION_BUTTON = 'smurf_admin_session';
 
     function getKeyFromUrl() {
         var params = new URLSearchParams(window.location.search);
@@ -18,15 +20,17 @@
     function grantAccess() {
         localStorage.setItem(STORAGE_ACCESS, 'true');
         localStorage.setItem(STORAGE_LEGACY, 'true');
+        sessionStorage.setItem(SESSION_BUTTON, '1');
     }
 
     function revokeAccess() {
         localStorage.removeItem(STORAGE_ACCESS);
         localStorage.removeItem(STORAGE_LEGACY);
+        sessionStorage.removeItem(SESSION_BUTTON);
     }
 
-    function hasStoredAccess() {
-        return localStorage.getItem(STORAGE_ACCESS) === 'true';
+    function hasSessionButton() {
+        return sessionStorage.getItem(SESSION_BUTTON) === '1';
     }
 
     function removeAdminButton() {
@@ -122,7 +126,6 @@
         window.history.replaceState({}, document.title, cleanUrl);
     }
 
-    // ГЛАВНАЯ ФУНКЦИЯ ПРОВЕРКИ ДОСТУПА
     function checkAdminAccess() {
         var keyFromURL = getKeyFromUrl();
 
@@ -141,9 +144,9 @@
             return;
         }
 
-        if (hasStoredAccess()) {
+        if (hasSessionButton()) {
             createAdminButton();
-            console.log('✅ Сохранённый доступ. Кнопка показана.');
+            console.log('✅ Сессия активна. Кнопка показана.');
             return;
         }
 
